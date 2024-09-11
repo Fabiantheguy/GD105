@@ -1,5 +1,7 @@
 // Sets the size of the canvas
 size(500, 500);
+// Sets the color of the canvas
+background(231,0,42);
 // Sets the size of the lines
 strokeWeight(13);
 stroke(255, 0, 232);
