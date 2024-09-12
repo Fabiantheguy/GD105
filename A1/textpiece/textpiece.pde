@@ -1,3 +1,4 @@
+void setup() {
 size(600, 600); // Set window size
 background(0,0,0); // Make the background black
 PFont pixel; // Set font name
@@ -5,7 +6,8 @@ pixel = createFont("ARCADECLASSIC.TTF", 128); // Grab font from data
 textSize(3);  // Set initial text size
 textFont(pixel); // Set font
 textAlign(CENTER); // Align text to center
-
+}
+void draw(){
 fill(255, 255, 255, 255); // Set text color
 textSize(200);  // Set text size
 text("Imma", 300, 200);  // Draw text on line
@@ -27,3 +29,4 @@ textSize(15);  // Set text size
 text("on jah", 300, 550);  // Draw text on line
 
 save("textpiece.png"); // Make PNG based on output
+}
