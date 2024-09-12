@@ -10,9 +10,9 @@ fill(255, 255, 255, 255); // Set text color
 textSize(200);  // Set text size
 text("Imma", 300, 200);  // Draw text on line
 
-fill(255, 255, 255, 200); // Set text color
+fill(255, 0, 0, 200); // Set text color
 textSize(100);  // Set text size
-text("diddle", 300, 300);  // Draw text on line
+text("slash", 300, 300);  // Draw text on line
 
 fill(255, 255, 255, 150); // Set text color
 textSize(50);  // Set text size
@@ -25,3 +25,5 @@ text("silently", 300, 450);  // Draw text on line
 fill(255, 255, 255, 25); // Set text color
 textSize(15);  // Set text size
 text("on jah", 300, 550);  // Draw text on line
+
+save("textpiece.png"); // Make PNG based on output
