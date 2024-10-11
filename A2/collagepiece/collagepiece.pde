@@ -67,6 +67,6 @@ void draw() {
   image(pink, 240, 270);
   image(fort, 579, 379);
   image(tam, 700, 80);
-  // Save PNG
+  // Save as PNG
   save("collagepiece.png");
 }
