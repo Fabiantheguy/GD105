@@ -69,9 +69,9 @@ void setup(){
   ellipseMode(RADIUS);
 }
 void draw() {
-  background(50,50,50);
+  background(20,20,20);
 
-  //Draw the MTG/Planeswalker symbol
+  //Draw the MTG/Planeswalker symbol and move it to its center
   image(mtg, center.x-24, center.y-44);
   //Finds the colors next point based on its current angle
   float xw = center.x + cos(anglew)*radiusw;
