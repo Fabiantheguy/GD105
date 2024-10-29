@@ -28,6 +28,7 @@ void draw() {
   drawGreen();
   drawBlue();
   RandomColor = int(random(0,255));
+  save("buildduppiece.png");
 }
 
 void drawRed(){

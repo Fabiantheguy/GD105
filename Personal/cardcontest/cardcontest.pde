@@ -50,6 +50,9 @@ PImage raid;
 PImage basari;
 PImage evil;
 PImage chariz;
+PImage essence;
+PImage skip;
+PImage sun;
 
 
 // Set Card Target Areas To Move To Left & Right
@@ -151,6 +154,9 @@ void setup() {
   basari = loadImage("Basari.jpg");
   evil = loadImage("Evil.jpg");
   chariz = loadImage("Chariz.jpg");
+  essence = loadImage("Essence.jpg");
+  skip = loadImage("Skip.jpg");
+  sun = loadImage("Sun.png");
 // Define SoundFile Variables
   ambience = new SoundFile(this, "data/Ambience.mp3");
   drum = new SoundFile(this, "data/Drum.mp3");
@@ -186,7 +192,7 @@ void setup() {
   plus.resize(336, 468);
   board.resize(336, 468);
   joker.resize(336, 468);
-  neigh.resize(336, 468);
+  neigh.resize(420, 585);
   leaf.resize(336, 468);
   jail.resize(336, 468);
   needle.resize(336, 468);
@@ -208,6 +214,9 @@ void setup() {
   basari.resize(420, 585);
   evil.resize(420, 585);
   chariz.resize(420, 585);
+  essence.resize(420, 585);
+  skip.resize(420, 585);
+  sun.resize(420, 585);
 // Makes All Cards Given Accessible
   for(int i = 0; i < canChoose.length; i++){
     canChoose[i] = true;
@@ -321,11 +330,17 @@ void cycleCards(){
      canChoose[3] = false;
    }
     if(card == 4){
-     image(leech, ltargetx, ltargety);
+     lgame = "Magic: The Gathering";
+     rgame = "Unstable Unicorns";
+     image(essence, ltargetx, ltargety);
+     image(neigh, rtargetx, rtargety);
      canChoose[4] = false;
    }
     if(card == 5){
-     image(lotus, ltargetx, ltargety);
+     lgame = "UNO";
+     rgame = "The Binding of Isaac: Four Souls";
+     image(skip, ltargetx, ltargety);
+     image(sun, rtargetx, rtargety);
      canChoose[5] = false;
    }
     if(card == 6){
@@ -466,8 +481,8 @@ textSize(25);
 textLeading(20);
 if(timer > 60 && cardsSeen != last){
 textSize(40);
-text(lgame, 300, 90);
-text(rgame, 1000, 90);
+text(lgame, 315, 90);
+text(rgame, 1015, 90);
 textSize(100);
 text("VS.", 650, 400);
 textSize(40);
@@ -478,7 +493,7 @@ text("Which card is \nbetter?", 662.5, 800);
 void randomDraw(){
   int rand = (int)(random(1,30));
   if(canChoose[rand] == true){
-     card = 3;
+     card = 1;
      print(score);
      canDraw = false;
   }}
