@@ -21,6 +21,7 @@ PImage phyrexian;
 float angle;
 
 void setup() {
+  background(202, 195, 192);
   size(960, 720);
   white = loadImage("White.png");
   white.resize(symbolSize,symbolSize);
@@ -57,7 +58,6 @@ void setup() {
 void draw() {
   // Draw The Background Matching Colorless
   colorMode(RGB);
-  background(202, 195, 192);
   colorMode(HSB, 255);
   fill(10);
   noStroke();
@@ -101,7 +101,6 @@ void draw() {
   fill(0,0,0,0);
   stroke(10);
   endShape();
-  
 
   //increment the angle to move the point
   angle += PI/120;
@@ -125,7 +124,7 @@ void DrawHands(){
 }
 
 float X(float anglex){
-  float x = (cx - (symbolSize / 2)) - cos(angle + anglex) * secondsRadius;
+  float x = (cx - (symbolSize / 2)) + cos(angle + anglex) * secondsRadius;
   return x;
 }
 float Y(float angley){
