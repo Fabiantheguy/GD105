@@ -1,13 +1,11 @@
 /*
- This is a clock that uses symbols to represent numbers on the clock. The hands of the clock
- each respective a different color symbol.
+ This is a slider that uses symbols to represent numbers on the clock. Each
+ symbol has its own dedicated length and is easily remembered without the key
+ by referring to WUBRG order.
  */
-
+// Setting Variables
 int cx, cy;
 float symbolsRadius;
-float handRadius;
-float hoursRadius;
-float clockDiameter;
 int symbolSize = 75;
 PImage white;
 PImage blue;
@@ -21,10 +19,22 @@ PImage phyrexian;
 PFont bel;
 
 float angle;
+PGraphics pg;
+// AM Symbol Positions
+float awSymPos;
+float auSymPos;
+float abSymPos;
+float arSymPos;
+float agSymPos;
+// PM Symbol Positions
+float pwSymPos;
+float puSymPos;
+float pbSymPos;
+float prSymPos;
+float pgSymPos;
 
 void setup() {
-  //background(202, 195, 192);
-   background(202, 195, 255);
+  background(202, 195, 192);
   size(960, 720);
   bel = createFont("Beleren2016-Bold.ttf", 1);
   white = loadImage("White.png");
@@ -44,10 +54,8 @@ void setup() {
   phyrexian = loadImage("Phyrexian.png");
   phyrexian.resize(40 ,symbolSize);
   int radius = min(width / 2, height / 2) / 2;
-  symbolsRadius = radius * 0.72;
-  handRadius = radius * 0.9;
-  hoursRadius = radius * 0.80;
-  clockDiameter = radius * 1.8;
+  symbolsRadius = radius * 1.25;
+  // Grabs The Center Of The Screen
   cx = width / 2;
   cy = height / 2;
   
@@ -58,45 +66,58 @@ void setup() {
   
   colorMode(HSB, 255);
   fill(10);
-  noStroke();
-  ellipse(cx, cy, clockDiameter, clockDiameter);
+  //noStroke();
+  //ellipse(cx, cy, clockDiameter, clockDiameter);
+
   
+  fill(212,21,21);
 }
 
 void draw() {
+  awSymPos = map(((hour()) + norm(minute(), 0, 60)), 10, 12, (cx/2) - (symbolSize / 2), (cx * 1.5));
+  auSymPos = map(hour() + norm(minute(), 0, 60), 0, 2, (cx/2), (cx * 1.5));
+  abSymPos = map(hour() + norm(minute(), 0, 60), 2, 4, (cx/2), (cx * 1.5));
+  arSymPos = map(hour() + norm(minute(), 0, 60), 4, 8, (cx/2), (cx * 1.5));
+  agSymPos = map(hour() + norm(minute(), 0, 60), 8, 10, (cx/2), (cx * 1.5));
+  pwSymPos = map(hour() + norm(minute(), 0, 60), 22, 24, (cx/2) - (symbolSize / 2), (cx * 1.5));
+  puSymPos = map(hour() + norm(minute(), 0, 60), 12, 14, (cx/2), (cx * 1.5));
+  pbSymPos = map(hour() + norm(minute(), 0, 60), 14, 16, (cx/2), (cx * 1.5));
+  prSymPos = map(hour() + norm(minute(), 0, 60), 20, 22, (cx/2), (cx * 1.5));
+  pgSymPos = map(hour() + norm(minute(), 0, 60), 20, 22, (cx/2), (cx * 1.5));
+  background(0, 0, 0);
+  
+  print(hour() + norm(minute(), 0, 60) + "\n");
+  //print(awSymPos + "\n");
+  //print(hour() + "\n");
+  //print(minute() + "\n");
+  //print(norm(minute(), 0, 60) + "\n");
   textFont(bel);
   // Draw The Background Matching Colorless
   colorMode(RGB);
   colorMode(HSB, 255);
   fill(10);
   noStroke();
-
-
+  
   
   // Draw The MTG Mana Symbols
  // image(mtg, (cx - ((symbolSize - 35) /2)), cy / 3);
     //draw the center point
-  //find the point based on the angle
-  float x = (cx - (symbolSize / 2)) - cos(angle) * symbolsRadius;
-  float y = (cy - (symbolSize / 2)) + sin(angle) * symbolsRadius;
-  float ux = (cx - (symbolSize / 2)) - cos(angle - 10) * symbolsRadius;
-  float uy = (cy - (symbolSize / 2)) + sin(angle - 10) * symbolsRadius;
 
 
   //Write The Legend
   textSize(50);
   textAlign(CENTER);
-  
-  image(white, cx - (symbolSize/2), 0);
-  text("12-2", cx - 0, 115);
+  fill(255);
+  image(white, cx - (symbolSize/2), 10);
+  text("10-12", cx - 0, 125);
   image(blue, ((cx * 1.4) - (symbolSize / 2)), cy / 4);
-  text("2-4", cx * 1.4, (cy / 4) + 115);
+  text("12-2", cx * 1.4, (cy / 4) + 115);
   image(black, ((cx * 1.4) - (symbolSize / 2)), cy * 1.45);
-  text("4-8", (cx * 1.4), (cy * 1.45) + 115);
+  text("2-4", (cx * 1.4), (cy * 1.45) + 115);
   image(red, ((cx / 1.65) - (symbolSize / 2)), cy * 1.45);
-  text("8-10", (cx / 1.65), (cy * 1.45) + 115);
+  text("4-8", (cx / 1.65), (cy * 1.45) + 115);
   image(green, ((cx / 1.65) - (symbolSize / 2)), cy / 4);
-  text("10-12", (cx / 1.65), (cy / 4) + 115);
+  text("8-10", (cx / 1.65), (cy / 4) + 115);
   // Draw the minute ticks
   strokeWeight(2);
   beginShape(POINTS);
@@ -118,33 +139,84 @@ void draw() {
 
 void DrawHands(){
   // Set The Time Values
-  float ms = (map(millis(), 0, 1000, 0, TWO_PI) - HALF_PI);
-  float s = (map(second(), 0, 60, 0, TWO_PI) - HALF_PI);
-  // A Few Seconds Behind A Second
-  float bs = ((map(second(), 0, 60, 0, TWO_PI) - .4) - HALF_PI); 
-  float m = map(minute() + norm(second(), 0, 60), 0, 60, 0, TWO_PI) - HALF_PI;
-  float h = map(hour() + norm(minute(), 0, 60), 0, 24, 0, TWO_PI * 2) - HALF_PI;
-  float bh = (map(hour() + norm(minute(), 0, 60), 0, 24, 0, TWO_PI * 2) - .4) - HALF_PI;
   
   // Draw The Second Hand Of The Clock With Milliseconds To Make Them Smooth~ (I Swear)
   colorMode(RGB);
-  stroke(255,251,214,255);
   strokeWeight(40);
-  // Draw & Leave A Trace Behind The Symbols
+  /* Draw & Leave A Trace Behind The Symbols
   if (h < 2311){
     print(h);
   }
-  line(cx, cy, cx + cos(ms) * (handRadius), cy + sin(ms) * (handRadius));
+  line(cx, cy, cx + cos(bh) * (handRadius), cy + sin(bh) * (handRadius));
   ellipse(cx, cy, clockDiameter, clockDiameter);
   image(white, (cx - (symbolSize / 2)) + (cos(h) * symbolsRadius), (cy - (symbolSize / 2)) + sin(h) * symbolsRadius);
-
+  */
+  //image(white, (cx - (symbolSize / 2)) + (cos(ms) * symbolsRadius), cy - (symbolSize / 2));
+  float changeTime = hour() + norm(minute(), 0, 60);
+  
+  if((changeTime > 10 && changeTime < 12) || (changeTime > 22 && changeTime < 24)){
+  stroke(255,251,214,255);
+  line(cx/2, cy, cx * 1.5, cy);
+  MakeSymbols(white, awSymPos);
 }
-
-float X(float anglex){
-  float x = (cx - (symbolSize / 2)) + cos(angle + anglex) * symbolsRadius;
-  return x;
+  if(changeTime > 22 && changeTime < 24){
+  stroke(255,251,214,255);
+  line(cx/2, cy, cx * 1.5, cy);
+  MakeSymbols(white, pwSymPos);
 }
-float Y(float angley){
-  float y = (cy - (symbolSize / 2)) + sin(angle + angley) * symbolsRadius;
-  return y;
+  if(changeTime > 0 && changeTime < 2){ 
+  stroke(255,251,214,255);
+  line(cx/2, cy, cx * 1.5, cy);
+  MakeSymbols(blue, abSymPos);
+}
+  if(changeTime > 12 && changeTime < 14){ 
+  stroke(255,251,214,255);
+  line(cx/2, cy, cx * 1.5, cy);
+  MakeSymbols(blue, abSymPos);
+}
+  if(changeTime > 2 && changeTime < 4){ 
+  stroke(255,251,214,255);
+  line(cx/2, cy, cx * 1.5, cy);
+  MakeSymbols(black, abSymPos);
+}
+  if (changeTime > 14 && changeTime < 16){
+  stroke(255,251,214,255);
+  line(cx/2, cy, cx * 1.5, cy);
+  MakeSymbols(black, pbSymPos);
+}
+  if(changeTime > 4 && changeTime < 8){ 
+  MakeSymbols(red, arSymPos);
+}
+  if(changeTime > 16 && changeTime < 20){ 
+  MakeSymbols(red, prSymPos);
+}
+  if(changeTime > 8 && changeTime < 10){ 
+  MakeSymbols(green, agSymPos);
+}
+  if(changeTime > 20 && changeTime < 22){ 
+  MakeSymbols(green, pgSymPos);
+}
+  if(changeTime > 2 && changeTime < 4){
+  stroke(202, 195, 192);
+  line(cx/2, cy, cx * 1.5, cy);
+  MakeSymbols(black, abSymPos);
+}
+  if(changeTime > 14 && changeTime < 16){
+  stroke(202, 195, 192);
+  line(cx/2, cy, cx * 1.5, cy);
+  MakeSymbols(black, pbSymPos);
+}
+  // Says Whether Its AM OR PM
+  fill(255);
+  if(changeTime < 12){ 
+  text("AM", cx, (cy / 4) + 115);
+}
+  else{
+  text("PM", cx, (cy / 4) + 115);
+}
+}
+void MakeSymbols(PImage img, float col){
+  image(img, col, cy - (symbolSize / 2));
+  
+
 }
