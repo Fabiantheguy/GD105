@@ -36,6 +36,8 @@ float pgSymPos;
 // Colors For AM & PM
 float light;
 float dark;
+// If The Screen Has Been Shot
+boolean saved;
 
 void setup() {
   size(960, 720);
@@ -61,12 +63,8 @@ void setup() {
   // Grabs The Center Of The Screen
   cx = width / 2;
   cy = height / 2;
- 
-
   
-
-  
-  fill(212,21,21);
+  saved = false;
 }
 
 void draw() {
@@ -92,6 +90,10 @@ void draw() {
   noStroke();
   DrawTime();
 
+  if(saved == false){
+    saved = true;
+    save("clockthatsnotaclockpiece.png");
+  }
 }
 
 void DrawTime(){

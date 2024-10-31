@@ -26,8 +26,8 @@ void setup()
   randG = random(150,255);
   randB = random(150,255);
   size(400, 400);
-  // Sets The Random Number
-  randLin = random(1,5);
+  // Sets A Random Density of Lines
+  randLin = random(1,3);
   saved = false;
   iSize = 1;
 }
@@ -67,7 +67,7 @@ void draw()
     if(iSize < 50){
       fill(0);
       ellipse(width/2, height/2, iSize, iSize);
-      iSize += .3;
+      iSize += 0.3;
 
       print(iSize + "\n");
     }
@@ -75,7 +75,7 @@ void draw()
       vibrate +=0.4;
       float v = noise(vibrate) * 5;
       fill(0);
-      ellipse((width/2) + (v * 2), (height/2) - (v / 4), 55, 55);
+      ellipse((width/2) + (v * 2), (height/2) - (v / 3), 55, 55);
     }
     // Saves The PNG After It Starts
     if(frameCount >= 1 && saved == false){
