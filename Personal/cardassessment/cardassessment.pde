@@ -1,17 +1,3 @@
-/*
-    ambience.loop();
-    cardsSeen = 1;
-    score = 0;
-    textSize = 1;
-    targetx = 330;
-    targety = 900;
-    timer = 0;
-    paper.play();
-    resultsSound = false;
-    for(int i = 0; i < canChoose.length; i++){
-      canChoose[i] = true;
-    }}}
-*/
 // This piece aims to be a card assessment quiz on the strength of cards in card games
 // and gives players results dependent on their scores. GOOD LUCK!
 
@@ -63,6 +49,7 @@ void setup() {
   for (int i = 0; i < cardImages.length; i++) {
     cardImages[i] = loadImage(cardImageNames[i]);
     cardImages[i].resize(336, 468);
+    print(cardImages[i] + "\n");
   }
 
   // Load Sounds
@@ -165,10 +152,10 @@ boolean onButton(int x, int y, int width, int height) {
 void cycleCards() {
   if (!canDraw && cardsSeen < last) {
     for (int i = 1; i <= 30; i++) {
-      if (card == i && canChoose[i]) {
+      if (card == i) {
         image(cardImages[i - 1], targetx, targety);
+        print(cardImageNames[i-1]);
         canChoose[i] = false;
-        break;
       }
     }
   }
@@ -178,7 +165,7 @@ void drawButtons() {
   if (timer > 60 && cardsSeen != last) {
     fill(onButton(rx, ry, bw, bh) ? 220 : 255, 0, 0);
     rect(rx, ry, bw, bh);
-    fill(onButton(gx, gy, bw, bh) ? 0 : 255, onButton(gx, gy, bw, bh) ? 220 : 255, 0);
+    fill(0, onButton(gx, gy, bw, bh) ? 220 : 255, 0);
     rect(gx, gy, bw, bh);
 
     fill(255);
@@ -211,35 +198,118 @@ void randomDraw() {
   }
 }
 
-void resultsText() {
-  colorCycle = frameCount % 360;
-  textSize(40);
-  textLeading(30);
-  text("Your card assessment skills are", 500, 150);
-
-  if (score >= uhm && score < poor) {
-    displayResult("uhm...", sad, "To be completely honest, I\n don't even know if you tried...", 500, 375);
-  } else if (score >= poor && score < good) {
-    displayResult("Poor", okay, "You don't seem to understand what\n makes a card strong...", 500, 290);
-  } else if (score >= good && score < great) {
-    displayResult("Nice!", nice, "You seem to understand a bit...", 500, 325);
-  } else if (score >= great && score < amazing) {
-    displayResult("Great!", grayt, "You have a great grasp on what\n makes a card strong...", 500, 290);
-  } else if (score >= amazing && score <= last) {
-    displayResult("Amazing!", cheer, "Your understanding of card strengths is top-notch!", 500, 290);
-  }
+void resultsText(){
+colorCycle = frameCount%360;
+textSize(40); 
+textLeading(30);
+text("Your card assessment skills are", 500, 150);
+textSize(textSize);
+if(score >= uhm && score < poor){
+fill(21,71,34);
+if(timer > 140){
+text("uhm...", 500,230);
+}
+fill(255);
+if(timer > 160 && resultsSound == false){
+  sad.play();
+  resultsSound = true;
+}
+if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("To be completely honest, I\n don't even know if you tried...", 500,375);
+}
+}
+if(score >= poor && score < good){
+if(timer > 140){
+text("Poor", 500,230);
+}
+if(timer > 160 && resultsSound == false){
+  okay.play();
+  resultsSound = true;
+}
+if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("You don't seem to understand what\n makes a card strong, but you have\nwhat it takes to start learning.\n Playing more card games is the best\n way to build this instinct.", 500,290);
+}
+}
+if(score >= good && score < great){
+if(timer > 140){
+text("Nice!", 500,230);
+}
+if(timer > 160 && resultsSound == false){
+  nice.play();
+  resultsSound = true;
+}
+if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("You seem to understand a bit of what\n makes a card strong, but still have \nroom to understand more. Try \nagain and see if you can do better.", 500,325);
+}
+}
+if(score >= great && score < amazing){
+if(timer > 140){
+text("Great!", 500,230);
+}
+if(timer > 160 && resultsSound == false){
+  grayt.play();
+  resultsSound = true;
+}
+if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("You have a great grasp on what\n makes a card strong, and most likely\n have a solid understanding of card\n games as a form of play. You likely\ndon't struggle to pick up new ones.", 500,290);
+}
+}
+if(score >= amazing && score + 1 < last){
+fill(255,255,0);
+if(timer > 140){
+text("AMAZING!", 500,230);
 }
 
-void displayResult(String resultText, SoundFile sound, String description, float x, float y) {
-  fill(colorCycle, 255, 255);
-  if (!resultsSound) {
-    sound.play();
-    resultsSound = true;
+fill(255);
+if(timer > 160 && resultsSound == false){
+  cheer.play();
+  resultsSound = true;
+}
+if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("You are excellent at\n evaluating a card's strengths, and\n are more often than not, great\n at picking up new ones.", 500,300);
+}}
+if(score + 1 >= last){
+colorMode(HSB,360,100,100);
+fill(color(colorCycle, 100, 100));
+if(timer > 140){
+text("PERFECT!!!", 500,230);
+}
+colorMode(RGB,255,255,255);
+fill(255,255,255);
+if(timer > 160 && resultsSound == false){
+  cheer.play();
+  resultsSound = true;
+}if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("You have S-Tier assessment abilities!\n There wasn't a single misstep in your \njudgement or knowledge! Be sure to\n play again to see how well you\n fare against other cards.", 500, 290);
+}}
+if(timer > 140 && textSize < 59){
+textSize += 4;}
+if(timer > 300){
+  save("results.png");
+// Draw Retry Button
+  if(onButton(yx,yy,bw,bh)){
+  fill(220,220,0);
   }
-  text(resultText, 500, 210);
-  textSize(25);
+else{
+  fill(255,255,0);
+}
+  rect(yx,yy,bw,bh);
   fill(255);
-  text(description, x, y);
+  text("Retry?", 500, 615);
+
+}
 }
 
 void resetGame(){
@@ -254,4 +324,5 @@ void resetGame(){
     resultsSound = false;
     for(int i = 0; i < canChoose.length; i++){
       canChoose[i] = true;  
+}
 }

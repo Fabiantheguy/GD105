@@ -26,14 +26,13 @@ void setup()
   size(1000,1000);
   white = loadImage("White.png");
   white.resize(1000,1000);
-  print("e" + "\n" + "l");
 
 }
 
 void draw()
 {
   background(255);
-  float speedOfRotation = .0025; // higher values go faster, e.g. .02 is double speed
+  float speedOfRotation = .0015; // higher values go faster, e.g. .02 is double speed
   float amtToRotate = millis()*speedOfRotation;
   
   int x = 500, y = 500;  // where to place the image
@@ -41,10 +40,12 @@ void draw()
   pushMatrix();
   translate(x,y);
   rotate(amtToRotate);
+ // print(amtToRotate + "\n" );
   image(white, -white.width/2, -white.height/2);
   w.addFrame(1);
-  if(amtToRotate > 4){
+  if(amtToRotate > 6.4){
   w.save();
+  print("full");
   }
   popMatrix();
 }
