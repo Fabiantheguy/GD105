@@ -1,31 +1,37 @@
+/* This piece is a reimagined version of my previous personal piece.
+   Rather than make guesses on if a card is good, this quiz aims to
+   see if the player knows how to compare power. I made use of 
+   arrays and for loops in order to keep the code more concise and less
+   redundant. The game tells the player if they're doing well and I plan
+   to make the game give reasons why one card is better in the future.
+*/
 // Load the necessaly libraries
 import processing.sound.*;
 
-// Declare variables
-SoundFile[] sounds = new SoundFile[8];
+// Declare SoundFile Variables
+SoundFile ambience, paper, drum, sad, okay, nice, cheer, grayt, ding;
 // Sets The Array For Cards To Grab
 PImage[] cardImages = new PImage[37];
 // Declares The Name Of Games
-String[] gameNames = {"MTG", "MTG", "Yu-Gi-Oh!",  "Po-ké-mon!"};
+String[] gameNames = {"MTG", "MTG", "Yu-Gi-Oh!", "Po-ké-mon!", "MTG", "Unstable Unicorns"};
 // Declares The Name Of Cards 
-String[] cardNames = {"Raider.jpg", "Orcs.jpg", "Evil.jpg", "Chariz.jpg", "Lotus.png", "One.jpg", "Pea.jpg", "Report.jpg", "Slow.jpg", "Tutor.jpg", 
+String[] cardNames = {"Raider.jpg", "Orcs.jpg", "Evil.jpg", "Chariz.jpg", "Essence.jpg", "Hang.png","Lotus.png", "One.jpg", "Pea.jpg", "Report.jpg", "Slow.jpg", "Tutor.jpg", 
   "Shudder.png", "Magma.png", "+4.jpg", "Board.jpg", "Joker.jpg", "Neigh.png", "Leaf.jpg", "Jail.jpg", "Needle.png", "Ignoble.jpg", "Shinka.jpg",
-  "Shira.jpg", "Ordine.png", "Feebas.png", "Sentry.png", "Haunt.jpg", "Hang.png", "Nope.jpg", "Rag.jpg", "Greed.png", "Research.png", "Raid.jpg", "Basari.jpg", "Essence.jpg", "Skip.jpg", "Sun.png" };
+  "Shira.jpg", "Ordine.png", "Feebas.png", "Sentry.png", "Haunt.jpg", "Nope.jpg", "Rag.jpg", "Greed.png", "Research.png", "Raid.jpg", "Basari.jpg", "Skip.jpg", "Sun.png" };
 
-// Sound file names
-String[] soundNames = { "Ambience.mp3", "Drum.mp3", "Paper.mp3", "Sad.mp3", "Okay.mp3", "Nice.mp3", "Cheer.mp3", "Great.mp3" };
 
 // Set Target Areas For Cards;
 float ltargetx, ltargety, rtargetx, rtargety;
 String lgame, rgame;
 PFont bel;
-int lx = 100, rx = 800, yx = 375, ly = 750, ry = 750, yy = 750, bw = 420, bh = 100;
-int card = 1, last = 21, score = 0;
+int lx = 100, rx = 800, yx = 430, ly = 750, ry = 750, yy = 750, bw = 420, bh = 100;
+// Handles The Current Card, Last Card, & Current Score
+int card = 1, last = 5, score = 0;
 int amazing, great, good, poor, uhm;
 float textSize = 1;
 int colorCycle, timer;
 boolean saved, resultsSound = false, canDraw = true, firstSet = true;
-int cardsSeen = 1;
+int setsSeen = 1;
 boolean[] canChoose = new boolean[cardNames.length];
 
 void setup() {
@@ -37,6 +43,17 @@ void setup() {
   poor = (good / 1) - (good / 2);
   uhm = 0;
   card = 0;
+  
+  // Load Sounds
+  ambience = new SoundFile(this, "data/Ambience.mp3");
+  drum = new SoundFile(this, "data/Drum.mp3");
+  paper = new SoundFile(this, "data/Paper.mp3");
+  sad = new SoundFile(this, "data/Sad.mp3");
+  okay = new SoundFile(this, "data/Okay.mp3");
+  nice = new SoundFile(this, "data/Nice.mp3");
+  cheer = new SoundFile(this, "data/Cheer.mp3");
+  grayt = new SoundFile(this, "data/Great.mp3");
+  ding = new SoundFile(this, "data/Ding.mp3");
   
   // Set up font
   bel = createFont("Beleren2016-Bold.ttf", 1);
@@ -51,14 +68,10 @@ void setup() {
   }
   canChoose[0] = false;
   
-  // Load sounds
-  for (int i = 0; i < soundNames.length; i++) {
-    sounds[i] = new SoundFile(this, "data/" + soundNames[i]);
-  }
   
-  // Start ambience and first sound
-  sounds[0].loop();
-  sounds[2].play();
+  // Play Background Ambience
+  ambience.loop();
+  paper.play();
 }
 
 void draw() {
@@ -80,18 +93,20 @@ void draw() {
     rtargetx = 800;
     rtargety = 2000;
   }
-  if (cardsSeen == last) resultsText();
-    print(isCorrect(card) + "\n" + score);
-}
+  if(setsSeen == last){
+    resultsText();
+    print(setsSeen + "\n");
+}}
 
 void mouseClicked() {
-  if ((timer > 80 && cardsSeen == last - 1) && (onButton(lx, ly, bw, bh) || onButton(rx, ry, bw, bh))) {
-    sounds[1].play(); // Drum sound
+  if ((timer > 80 && setsSeen == last - 1) && (onButton(lx, ly, bw, bh) || onButton(rx, ry, bw, bh))) {
+     drum.play(); // Drum sound
+     print("yuh");
   }
 
   // Handle button clicks for scoring
-  if (onButton(lx, ly, bw, bh) && timer > 80 && cardsSeen != last) updateScoreAndCards("left");
-  if (onButton(rx, ry, bw, bh) && timer > 80 && cardsSeen != last) updateScoreAndCards("right");
+  if (onButton(lx, ly, bw, bh) && timer > 80 && setsSeen != last) updateScoreAndCards("left");
+  if (onButton(rx, ry, bw, bh) && timer > 80 && setsSeen != last) updateScoreAndCards("right");
   if (onButton(yx, yy, bw, bh) && timer > 200) resetGame();
 }
 
@@ -101,26 +116,27 @@ boolean onButton(int x, int y, int width, int height) {
 
 void updateScoreAndCards(String side) {
   timer = 0;
-  if ((side == "left" && isCorrect(card))) score += 1;
-  if ((side == "right" && isCorrect(card + 1))) score += 1;
-  if (cardsSeen < last - 1) sounds[2].play(); // Paper sound
-  cardsSeen += 1;
+  if ((side == "left" && isCorrect(card))){ ding.play(); score += 1;}
+  if ((side == "right" && isCorrect(card + 1))){ ding.play(); score += 1;}
+  paper.play();
+  setsSeen += 1;
   canDraw = true;
 }
 
 void resetGame() {
-  sounds[0].loop();
-  cardsSeen = 1;
+  ambience.loop();
+  card = 0;
+  setsSeen = 1;
   score = 0;
   textSize = 1;
   timer = 0;
-  sounds[2].play();
+paper.play();
   resultsSound = false;
   for (int i = 0; i < canChoose.length; i++) canChoose[i] = true;
 }
 
 void cycleCards() {
-  if (!canDraw && cardsSeen < last) {
+  if (!canDraw && setsSeen < last) {
     lgame = gameNames[card];
     rgame =  gameNames[card + 1];;
     image(cardImages[card], ltargetx, ltargety);
@@ -130,7 +146,7 @@ void cycleCards() {
 }
 
 void drawButtons() {
-  if (timer > 60 && cardsSeen != last) {
+  if (timer > 60 && setsSeen != last) {
     drawButton(lx, ly, "This One!", onButton(lx, ly, bw, bh));
     drawButton(rx, ry, "This One!", onButton(rx, ry, bw, bh));
   }
@@ -146,7 +162,8 @@ void drawButton(int x, int y, String text, boolean isHovered) {
 
 void explainerText() {
   textSize(40);
-  if (timer > 60 && cardsSeen != last) {
+  text("Score: " + score, width/2, 50);
+  if (timer > 60 && setsSeen != last) {
     textSize(100);
     text("VS.", 650, 400);
     textSize(40);
@@ -177,13 +194,116 @@ boolean contains(int[] array, int value) {
   return false;
 }
 
-void resultsText() {
-  // Handle color cycling and display final result based on score ranges
-  colorCycle = frameCount % 360;
-  if (!resultsSound) {
-    int soundIdx = score >= amazing ? 6 : score >= great ? 7 : score >= good ? 5 : score >= poor ? 4 : 3;
-    sounds[soundIdx].play();
-    resultsSound = true;
+void resultsText(){
+colorCycle = frameCount%360;
+textSize(40); 
+textLeading(30);
+text("Your card assessment skills are", width/2, 150);
+textSize(textSize);
+if(score >= uhm && score < poor){
+fill(21,71,34);
+if(timer > 140){
+text("uhm...", width/2,230);
+}
+fill(255);
+if(timer > 160 && resultsSound == false){
+  sad.play();
+  resultsSound = true;
+}
+if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("To be completely honest, I\n don't even know if you tried...", width/2,375);
+}
+}
+if(score >= poor && score < good){
+if(timer > 140){
+text("Poor", width/2,230);
+}
+if(timer > 160 && resultsSound == false){
+  okay.play();
+  resultsSound = true;
+}
+if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("You don't seem to understand what\n makes a card strong, but you have\nwhat it takes to start learning.\n Playing more card games is the best\n way to build this instinct.", width/2,290);
+}
+}
+if(score >= good && score < great){
+if(timer > 140){
+text("Nice!", width/2,230);
+}
+if(timer > 160 && resultsSound == false){
+  nice.play();
+  resultsSound = true;
+}
+if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("You seem to understand a bit of what\n makes a card strong, but still have \nroom to understand more. Try \nagain and see if you can do better.", width/2,325);
+}
+}
+if(score >= great && score < amazing){
+if(timer > 140){
+text("Great!", width/2,230);
+}
+if(timer > 160 && resultsSound == false){
+  grayt.play();
+  resultsSound = true;
+}
+if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("You have a great grasp on what\n makes a card strong, and most likely\n have a solid understanding of card\n games as a form of play. You likely\ndon't struggle to pick up new ones.", width/2,290);
+}
+}
+if(score >= amazing && score + 1 < last){
+fill(255,255,0);
+if(timer > 140){
+text("AMAZING!", width/2,230);
+}
+
+fill(255);
+if(timer > 160 && resultsSound == false){
+  cheer.play();
+  resultsSound = true;
+}
+if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("You are excellent at\n evaluating a card's strengths, and\n are more often than not, great\n at picking up new ones.", width/2,300);
+}}
+if(score + 1 >= last){
+colorMode(HSB,360,100,100);
+fill(color(colorCycle, 100, 100));
+if(timer > 140){
+text("PERFECT!!!", width/2,230);
+}
+colorMode(RGB,255,255,255);
+fill(255,255,255);
+if(timer > 160 && resultsSound == false){
+  cheer.play();
+  resultsSound = true;
+}if(timer > 240){
+  textSize(60);
+  textLeading(60);
+  text("You have S-Tier assessment abilities!\n There wasn't a single misstep in your \njudgement or knowledge! Be sure to\n play again to see how well you\n fare against other cards.", width/2, 290);
+}}
+if(timer > 140 && textSize < 59){
+textSize += 4;}
+if(timer > 300){
+  save("results.png");
+// Draw Retry Button
+  if(onButton(yx,yy,bw,bh)){
+  fill(220,220,0);
   }
-  // Display result text based on the score
+else{
+  fill(255,255,0);
+}
+  rect(yx,yy,bw,bh);
+  fill(255);
+  text("Retry?", width/2, yy + 70);
+
+}
 }
