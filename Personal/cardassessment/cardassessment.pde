@@ -1,141 +1,58 @@
-//This piece aims to be a card assessment quiz on the strength of cards in card games
-//and gives players results dependant on their scores. I pulled from a variety of
-//sources and randomized the cards shown. GOOD LUCK!
+// This piece aims to be a card assessment quiz on the strength of cards in card games
+// and gives players results dependent on their scores. GOOD LUCK!
 
-//I plan on fleshing out the results screen with more color, sounds, and descriptions.
-//Maybe even adding more cards.
-
-// Grab The Sound Library
+// Import Sound Library
 import processing.sound.*;
-//Declare SoundFile Variables
-SoundFile ambience;
-SoundFile paper;
-SoundFile drum;
-SoundFile sad;
-SoundFile okay;
-SoundFile nice;
-SoundFile cheer;
-SoundFile grayt;
+
+// Declare SoundFile Variables
+SoundFile ambience, paper, drum, sad, okay, nice, cheer, grayt;
+
 // Declare Image Variables
-PImage clay;
-PImage cold;
-PImage leech;
-PImage lotus;
-PImage one;
-PImage pea;
-PImage report;
-PImage slow;
-PImage tutor;
-PImage shudder;
-PImage magma;
-PImage plus;
-PImage board;
-PImage joker;
-PImage neigh;
-PImage leaf;
-PImage jail;
-PImage needle;
-PImage ignoble;
-PImage shinka;
-PImage shira;
-PImage ordine;
-PImage feebas;
-PImage sentry;
-PImage haunt;
-PImage hang;
-PImage nope;
-PImage rag;
-PImage greed;
-PImage research;
+PImage[] cardImages = new PImage[30]; // Array to store card images
+String[] cardImageNames = {"Clay.jpg", "Cold.jpg", "Greed.png", "Leech.jpg", "Lotus.png", 
+                           "One.jpg", "Research.png", "Pea.jpg", "Report.jpg", "Slow.jpg", 
+                           "Tutor.jpg", "Shudder.png", "Magma.png", "+4.jpg", "Board.jpg", 
+                           "Joker.jpg", "Neigh.png", "Leaf.jpg", "Jail.jpg", "Needle.png", 
+                           "Ignoble.jpg", "Shinka.jpg", "Shira.jpg", "Ordine.png", "Feebas.png", 
+                           "Sentry.png", "Haunt.jpg", "Hang.png", "Nope.jpg", "Rag.jpg"};
 
 // Set Card Target Areas To Move To
-float targetx = 330;
-float targety = 900;
-// Declare Font Name
+float targetx = 330, targety = 900;
+
+// Declare Font and Button Variables
 PFont bel;
-// Declare Button Vectors (r = red, g = green)
-int rx = 40;
-int gx = 710;
-int yx = 375;
-int ry = 525;
-int gy = 525;
-int yy = 550;
-// Declare Button Sizes
-int bw = 250;
-int bh = 100;
-// Tracks The Current Card Number
-int card = 1;
-//Tracks The Amount Of Cards Pulled Up (Must Be 8 Or Greater To Function Correctly)
-int last = 21;
-// Tracks The Player's Score
-int score = 0;
+int rx = 40, gx = 710, yx = 375, ry = 525, gy = 525, yy = 550, bw = 250, bh = 100;
 
-// Tracks Score Brackets
-int amazing;
-int great;
-int good;
-int poor;
-int uhm;
-// Growing Text Size For Final Results
+// Trackers and Score Brackets
+int card = 1, last = 21, score = 0;
+int amazing, great, good, poor, uhm;
 float textSize = 1;
-// Colors For Perfect Text
-int colorCycle;
-
-// A Rising Timer For Cooldowns
-int timer;
-// Checks If The Score's Already Been Saved
-boolean saved;
-// Checks If Results Sound Has Played
-boolean resultsSound = false;
-// Checks To See If A Random Card Can Be Drawn
-boolean canDraw = true;
-// Checks The Amount Of Cards Seen
+int colorCycle, timer;
+boolean saved, resultsSound = false, canDraw = true;
 int cardsSeen = 1;
-// Declares What Cards Can't Be Drawn
 boolean[] canChoose = new boolean[30];
+
 void setup() {
   size(1000, 700);
-// Set Score Brackets (Last Must Be 4 Or Greater To Function As Intended)
- amazing = (last/1) - (last/4);
- great = (amazing/1) - (amazing/5);
- good = (great/1) - (great/2);
- poor = (good/1) - (good/2);
- uhm = 0;
- print(amazing,great,good,poor,uhm);
-// Define Font Variable
+  
+  // Initialize Score Brackets
+  amazing = (last/1) - (last/4);
+  great = (amazing/1) - (amazing/5);
+  good = (great/1) - (great/2);
+  poor = (good/1) - (good/2);
+  uhm = 0;
+  
+  // Load Font
   bel = createFont("Beleren2016-Bold.ttf", 1);
-// Define Image Variables
-  clay = loadImage("Clay.jpg");
-  cold = loadImage("Cold.jpg");
-  leech = loadImage("Leech.jpg");
-  lotus = loadImage("Lotus.png");
-  one = loadImage("One.jpg");
-  pea = loadImage("Pea.jpg");
-  report = loadImage("Report.jpg");
-  slow = loadImage("Slow.jpg");
-  tutor = loadImage("Tutor.jpg");
-  shudder = loadImage("Shudder.png");
-  magma = loadImage("Magma.png");
-  plus = loadImage("+4.jpg");
-  board = loadImage("Board.jpg");
-  joker = loadImage("Joker.jpg");
-  neigh = loadImage("Neigh.png");
-  leaf = loadImage("Leaf.jpg");
-  jail = loadImage("Jail.jpg");
-  needle = loadImage("Needle.png");
-  ignoble = loadImage("Ignoble.jpg");
-  shinka = loadImage("Shinka.jpg");
-  shira = loadImage("Shira.jpg");
-  ordine = loadImage("Ordine.png");
-  feebas = loadImage("Feebas.png");
-  sentry = loadImage("Sentry.png");
-  haunt = loadImage("Haunt.jpg");
-  hang = loadImage("Hang.png");
-  nope = loadImage("Nope.jpg");
-  rag = loadImage("Rag.jpg");
-  greed = loadImage("Greed.png");
-  research = loadImage("Research.png");
-// Define SoundFile Variables
+  
+  // Load Images
+  for (int i = 0; i < cardImages.length; i++) {
+    cardImages[i] = loadImage(cardImageNames[i]);
+    cardImages[i].resize(336, 468);
+    print(cardImages[i] + "\n");
+  }
+
+  // Load Sounds
   ambience = new SoundFile(this, "data/Ambience.mp3");
   drum = new SoundFile(this, "data/Drum.mp3");
   paper = new SoundFile(this, "data/Paper.mp3");
@@ -144,311 +61,142 @@ void setup() {
   nice = new SoundFile(this, "data/Nice.mp3");
   cheer = new SoundFile(this, "data/Cheer.mp3");
   grayt = new SoundFile(this, "data/Great.mp3");
-// Set Stroke Size
+  
+  // Set Stroke Size, Font, and Text Alignment
   stroke(255);
-// Set Font & Align
   textFont(bel);
   textAlign(CENTER);
-// Play Ambience
-  ambience.loop();
-// Play First Draw Sound
-  paper.play();
-  
 
-// Resize Images
-  clay.resize(336, 468);
-  cold.resize(336, 468);
-  leech.resize(336, 468);
-  lotus.resize(336, 468);
-  one.resize(336, 468);
-  pea.resize(336, 468);
-  report.resize(336, 468);
-  slow.resize(336, 468);
-  tutor.resize(336, 468);
-  shudder.resize(336, 468);
-  magma.resize(336, 468);
-  plus.resize(336, 468);
-  board.resize(336, 468);
-  joker.resize(336, 468);
-  neigh.resize(336, 468);
-  leaf.resize(336, 468);
-  jail.resize(336, 468);
-  needle.resize(336, 468);
-  ignoble.resize(336, 468);
-  shinka.resize(336, 468);
-  shira.resize(336, 468);
-  ordine.resize(336, 468);
-  feebas.resize(336, 468);
-  sentry.resize(336, 468);
-  haunt.resize(336, 468);
-  hang.resize(336, 468);
-  nope.resize(336, 468);
-  rag.resize(336, 468);
-  greed.resize(336, 468);
-  research.resize(336, 468);
-// Makes All Cards Given Accessible
-  for(int i = 0; i < canChoose.length; i++){
+  // Play Background Ambience
+  ambience.loop();
+  paper.play();
+
+  // Initialize Card Accessibility
+  for (int i = 0; i < canChoose.length; i++) {
     canChoose[i] = true;
   }
-  canChoose[0] = false;
+  canChoose[0] = false; // Example of blocking first image if needed
 }
 
 void draw() {
-  // Draw Background
   background(0);
-// Increase Timer
   timer += 1;
-// Creates The Red & Green Buttons & Explainer Text
+
   drawButtons();
   explainerText();
-  if(canDraw == true){
-    randomDraw();}
-// Move Card After Cooldown
-  if(timer > 5){
-  // Cycle Between Cards
-  cycleCards();
-  targetx = lerp(targetx, 330, 0.4);
-  targety = lerp(targety, 50, 0.4);
+
+  if (canDraw) {
+    randomDraw();
   }
-  else{
-  targetx = 330;
-  targety = 900;
+
+  if (timer > 5) {
+    cycleCards();
+    targetx = lerp(targetx, 330, 0.4);
+    targety = lerp(targety, 50, 0.4);
+  } else {
+    targetx = 330;
+    targety = 900;
   }
-if(cardsSeen == last){
-  resultsText();
+
+  if (cardsSeen == last) {
+    resultsText();
+  }
 }
-}
-void mouseClicked(){
-  // Wait For Buttons To Spawn In Game To Be Reset
-   if((timer > 80 && cardsSeen == last - 1) && (onButton(rx,ry,bw,bh) || (onButton(gx,gy,bw,bh)))){
-     ambience.stop();
-     drum.play();
-    }
-        if(onButton(rx,ry,bw,bh) && timer > 80 && cardsSeen != last) {
+
+void mouseClicked() {
+  if ((timer > 80 && cardsSeen == last - 1) && (onButton(rx, ry, bw, bh) || (onButton(gx, gy, bw, bh)))) {
+    ambience.stop();
+    drum.play();
+  }
+
+  int[] trashCards = {2, 4, 6, 8, 9, 10, 13, 19, 21, 22, 25, 26, 27, 30};
+  int[] goatedCards = {1, 3, 5, 7, 11, 12, 14, 15, 16, 17, 18, 20, 23, 24, 28, 29, 31, 32};
+
+  if (onButton(rx, ry, bw, bh) && timer > 80 && cardsSeen != last) {
     timer = 0;
-    // Increase Score If Trash Was Chosen Correctly
-    if(card == 2 || card == 4 || card == 6 || card == 8 || card == 9 || card == 10 || card == 13 || card == 19 || card == 21 || card == 22 || card == 25 || card == 26 || card == 27 || card == 30){
-      score += 1;
+    for (int i : trashCards) {
+      if (card == i) {
+        score += 1;
+      }
     }
-    if(cardsSeen < last - 1){
+    if (cardsSeen < last - 1) {
       paper.play();
     }
     cardsSeen += 1;
     canDraw = true;
-    } 
-  if(onButton(gx,gy,bw,bh) && timer > 80 && cardsSeen != last) {
+  }
+
+  if (onButton(gx, gy, bw, bh) && timer > 80 && cardsSeen != last) {
     timer = 0;
-    // Increase Score If Goated! Was Chosen Correctly
-      if(card == 1 || card == 3 ||  card == 5 ||  card == 7 || card == 11 || card == 12|| card == 14 || card == 15 || card == 16 || card == 17 || card == 18 || card == 20 || card == 23 || card == 24 || card == 28 || card == 29 || card == 31 || card == 32){
-      score += 1;
+    for (int i : goatedCards) {
+      if (card == i) {
+        score += 1;
+      }
     }
-    if(cardsSeen < last - 1){
-       paper.play();
+    if (cardsSeen < last - 1) {
+      paper.play();
     }
     cardsSeen += 1;
     canDraw = true;
+  }
+
+  if (onButton(yx, yy, bw, bh) && timer > 200) {
+    resetGame();
+  }
+}
+
+boolean onButton(int x, int y, int width, int height) {
+  return mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height;
+}
+
+void cycleCards() {
+  if (!canDraw && cardsSeen < last) {
+    for (int i = 1; i <= 30; i++) {
+      if (card == i) {
+        image(cardImages[i - 1], targetx, targety);
+        print(cardImageNames[i-1]);
+        canChoose[i] = false;
+      }
     }
-    if(onButton(yx,yy,bw,bh) && timer > 200){
-    // Reset All Values
-    ambience.loop();
-    cardsSeen = 1;
-    score = 0;
-    textSize = 1;
-    targetx = 330;
-    targety = 900;
-    timer = 0;
-    paper.play();
-    resultsSound = false;
-    for(int i = 0; i < canChoose.length; i++){
-      canChoose[i] = true;
-    }}}
-boolean onButton(int x, int y, int width, int height)  
-// Checks if the mouse is inside the given coordinates and returns a boolean
-{
-  if (mouseX >= x && mouseX <= x+width && 
-      mouseY >= y && mouseY <= y+height) {
-    return true;
-  } else {
-    return false;
-  }
-}
-void cycleCards(){
-  if(canDraw == false && cardsSeen < last){
-   if(card == 1){
-     image(clay, targetx, targety);
-     canChoose[1] = false;
-   };
-   if(card == 2){
-     image(cold, targetx, targety);
-     canChoose[2] = false;
-   }
-   if(card == 3){
-     image(greed, targetx, targety);
-     canChoose[3] = false;
-   }
-    if(card == 4){
-     image(leech, targetx, targety);
-     canChoose[4] = false;
-   }
-    if(card == 5){
-     image(lotus, targetx, targety);
-     canChoose[5] = false;
-   }
-    if(card == 6){
-     image(one, targetx, targety);
-     canChoose[6] = false;
-   }
-    if(card == 7){
-     image(research, targetx, targety);
-     canChoose[7] = false;
-   }
-    if(card == 8){
-     image(pea, targetx, targety);
-     canChoose[8] = false;
-   }
-    if(card == 9){
-     image(report, targetx, targety);
-     canChoose[9] = false;
-   }
-    if(card == 10){
-     image(slow, targetx, targety);
-     canChoose[10] = false;
-   }
-    if(card == 11){
-     image(tutor, targetx, targety);
-     canChoose[11] = false;
-   }
-    if(card == 12){
-     image(shudder, targetx, targety);
-     canChoose[12] = false;
-   }    
-    if(card == 13){
-     image(magma, targetx, targety);
-     canChoose[13] = false;
-   }
-    if(card == 14){
-     image(plus, targetx, targety);
-     canChoose[14] = false;
-   }
-    if(card == 15){
-     image(board, targetx, targety);
-     canChoose[15] = false;
-   }
-    if(card == 16){
-     image(joker, targetx, targety);
-     canChoose[16] = false;
-   }
-    if(card == 17){
-     image(neigh, targetx, targety);
-     canChoose[17] = false;
-   }
-    if(card == 18){
-     image(leaf, targetx, targety);
-     canChoose[18] = false;
-   }
-    if(card == 19){
-     image(jail, targetx, targety);
-     canChoose[19] = false;
-   }
-    if(card == 20){
-     image(needle, targetx, targety);
-     canChoose[20] = false;
-   }
-    if(card == 21){
-     image(ignoble, targetx, targety);
-     canChoose[21] = false;
-   }
-    if(card == 22){
-     image(shinka, targetx, targety);
-     canChoose[22] = false;
-   }
-    if(card == 23){
-     image(shira, targetx, targety);
-     canChoose[23] = false;
-   }
-    if(card == 24){
-     image(ordine, targetx, targety);
-     canChoose[24] = false;
-   }
-    if(card == 25){
-     image(feebas, targetx, targety);
-     canChoose[25] = false;
-   }
-    if(card == 26){
-     image(sentry, targetx, targety);
-     canChoose[26] = false;
-   }
-    if(card == 27){
-     image(haunt, targetx, targety);
-     canChoose[27] = false;
-   }
-    if(card == 28){
-     image(hang, targetx, targety);
-     canChoose[28] = false;
-   }
-    if(card == 29){
-     image(nope, targetx, targety);
-     canChoose[29] = false;
-   }
-    if(card == 30){
-     image(rag, targetx, targety);
-     canChoose[30] = false;
-   }
   }
 }
 
-void drawButtons(){
-// Wait For Card To Settle
-if(timer > 60 && cardsSeen != last){
-// Set Red Color Depending On If Mouse Is On The Button
-if(onButton(rx,ry,bw,bh)) {
-  
-  fill(220,0,0);
-  } 
-else{
-  fill(255,0,0);
-}
-// Draw Red Button
-  rect(rx,ry,bw,bh);
+void drawButtons() {
+  if (timer > 60 && cardsSeen != last) {
+    fill(onButton(rx, ry, bw, bh) ? 220 : 255, 0, 0);
+    rect(rx, ry, bw, bh);
+    fill(0, onButton(gx, gy, bw, bh) ? 220 : 255, 0);
+    rect(gx, gy, bw, bh);
 
-// Set Green Color Depending On If Mouse Is On The Button
-if(onButton(gx,gy,bw,bh)){
-  fill(0,220,0);
+    fill(255);
+    textSize(45);
+    text("Trash", 170, 590);
+    text("Goated", 830, 590);
   }
-else{
-  fill(0,255,0);
 }
-// Draw Green Button
-  rect(gx,gy,bw,bh);
-  
-// Write Button Text
-fill(255);
-textSize(45); 
-text("Trash", 170, 590);
-text("Goated", 830, 590);
-}}
-void explainerText(){
-textSize(25); 
-textLeading(20);
-if(timer > 60 && cardsSeen != last){
-text("Numbers and symbols\n at the top of a card\n tend to show its cost.", 835, 150);
-text("While judging these\n cards, treat them as \nif you just drew them.", 180, 150);
-text("The text at the \nbottom of a card tend to\nshow the card's effect.", 180, 400);
-text("Different games have\n different objectives. Use your \nbest judgement to identify\n them as well as cards\n that get closer to them.", 835, 400);
-textSize(20);
-text("(At Face Value)", 500, 550);
-textSize(25);
-text("This card is...", 500, 600);
-}}
 
-void randomDraw(){
-  int rand = (int)(random(1,30));
-  if(canChoose[rand] == true){
-     card = rand;
-     print(score);
-     canDraw = false;
-  }}
-  
+void explainerText() {
+  textSize(25);
+  textLeading(20);
+  if (timer > 60 && cardsSeen != last) {
+    text("Numbers and symbols\n at the top of a card\n tend to show its cost.", 835, 150);
+    text("While judging these\n cards, treat them as \nif you just drew them.", 180, 150);
+    text("The text at the \nbottom of a card tends to\nshow the card's effect.", 180, 400);
+    text("Different games have\n different objectives. Use your \nbest judgment to identify\n them as well as cards\n that get closer to them.", 835, 400);
+    textSize(20);
+    text("(At Face Value)", 500, 550);
+    textSize(25);
+    text("This card is...", 500, 600);
+  }
+}
+
+void randomDraw() {
+  int rand = (int) (random(1, 30));
+  if (canChoose[rand]) {
+    card = rand;
+    canDraw = false;
+  }
+}
 
 void resultsText(){
 colorCycle = frameCount%360;
@@ -561,5 +309,20 @@ else{
   fill(255);
   text("Retry?", 500, 615);
 
+}
+}
+
+void resetGame(){
+    ambience.loop();
+    cardsSeen = 1;
+    score = 0;
+    textSize = 1;
+    targetx = 330;
+    targety = 900;
+    timer = 0;
+    paper.play();
+    resultsSound = false;
+    for(int i = 0; i < canChoose.length; i++){
+      canChoose[i] = true;  
 }
 }
