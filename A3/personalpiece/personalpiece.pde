@@ -10,13 +10,16 @@ import processing.sound.*;
 
 // Declare SoundFile Variables
 SoundFile ambience, paper, drum, sad, okay, nice, cheer, grayt, ding;
-// Sets The Array For Cards To Grab
+  // The Card In The Array That Are Better
+  int[] betterCards = {1, 2, 5, 6, 9, 11, 13, 15, 16, 19};
 // Declares The Name Of Games
-String[] gameNames = {"MTG", "MTG", "Yu-Gi-Oh!", "Po-ké-mon!", "MTG", "Unstable Unicorns", "Yu-Gi-Oh!", "Yu-Gi-Oh!", "Hearthstone", "MTG",};
+String[] gameNames = {"MTG", "MTG", "Po-ké-mon!", "Po-ké-mon!", "MTG", "Unstable Unicorns", "Yu-Gi-Oh!", "Yu-Gi-Oh!", "Hearthstone", "MTG", "Yu-Gi-Oh!", "Yu-Gi-Oh!",
+  "MTG", "MTG","MTG", "MTG", "MTG", "MTG", "UNO", "UNO"};
 // Declares The Name Of Cards 
-String[] cardNames = {"Raider.jpg", "Orcs.jpg", "Evil.jpg", "Chariz.jpg", "Essence.jpg", "Hang.png","Rai.png", "Hole.png", "Intel.png", "Arch.jpg","Lotus.png", "One.jpg", "Pea.jpg", "Report.jpg", "Slow.jpg", "Tutor.jpg", 
-  "Shudder.png", "Magma.png", "+4.jpg", "Board.jpg", "Joker.jpg", "Neigh.png", "Leaf.jpg", "Jail.jpg", "Needle.png", "Ignoble.jpg", "Shinka.jpg",
-  "Shira.jpg", "Ordine.png", "Feebas.png", "Sentry.png", "Haunt.jpg", "Nope.jpg", "Rag.jpg", "Greed.png", "Research.png", "Raid.jpg", "Basari.jpg", "Skip.jpg", "Sun.png" };
+String[] cardNames = {"Raider.jpg", "Orcs.jpg", "Young.png", "Main.png", "Essence.jpg", "Neigh.png", "Rai.png", "Hole.png", "Intel.png", "Arch.jpg", 
+  "Neg.png", "Threat.jpg", "Basari.jpg", "Raid.jpg",  "Thrill.jpg", "Demand.jpg", "Recall.jpg", "Mise.jpg",
+  "Wild.jpg", "+4.jpg", "Board.jpg", "Joker.jpg", "Neigh.png", "Leaf.jpg", "Jail.jpg", "Needle.png", "Ignoble.jpg", "Shinka.jpg",
+  "Shira.jpg", "Ordine.png", "Feebas.png", "Sentry.png", "Haunt.jpg", "Nope.jpg", "Rag.jpg", "Greed.png", "Research.png",  "Skip.jpg", "Sun.png" };
 PImage[] cardImages = new PImage[cardNames.length];
 
 // Set Target Areas For Cards;
@@ -27,9 +30,9 @@ int lx = 100, rx = 800, yx = 430, ly = 750, ry = 750, yy = 750, bw = 420, bh = 1
 // Handles The Current Card, & Current Score
 int card = 1, score = 0;
 int amazing, great, good, poor, uhm;
-float textSize = 1;
+float textSize = 1, redScoreColor;
 int colorCycle, timer;
-boolean saved, resultsSound = false, canDraw = true, firstSet = true;
+boolean saved, resultsSound = false, canDraw = true, firstSet = true, correct = false, wrong = false;
 int setsSeen = 1;
 boolean[] canChoose = new boolean[cardNames.length];
 
@@ -108,7 +111,7 @@ void mouseClicked() {
   // Handle button clicks for scoring
   if (onButton(lx, ly, bw, bh) && timer > 80 && setsSeen != last) updateScoreAndCards("left");
   if (onButton(rx, ry, bw, bh) && timer > 80 && setsSeen != last) updateScoreAndCards("right");
-  if (onButton(yx, yy, bw, bh) && timer > 200) resetGame();
+  if (onButton(yx, yy, bw, bh) && timer > 200 && setsSeen == last) resetGame();
 }
 
 boolean onButton(int x, int y, int width, int height) {
@@ -117,8 +120,8 @@ boolean onButton(int x, int y, int width, int height) {
 
 void updateScoreAndCards(String side) {
   timer = 0;
-  if ((side == "left" && isCorrect(card))){ ding.play(); score += 1;}
-  if ((side == "right" && isCorrect(card + 1))){ ding.play(); score += 1;}
+  if ((side == "left" && isCorrect(card)) || side == "right" && isCorrect(card + 1)){ding.play(); score++; correct = true;}
+  else{}
   paper.play();
   setsSeen += 1;
   canDraw = true;
@@ -162,9 +165,18 @@ void drawButton(int x, int y, String text, boolean isHovered) {
 }
 
 void explainerText() {
+  if(timer < 50){
+    if(correct){
+    fill(0, 255, 0);
+    }
+  }
+  else{
+    fill(255,255,255);
+  }
   textSize(40);
   text("Score: " + score, width/2, 50);
   if (timer > 60 && setsSeen != last) {
+    fill(255);
     textSize(100);
     text("VS.", 650, 400);
     textSize(40);
@@ -185,8 +197,6 @@ void Draw() {
 }
 }
 boolean isCorrect(int card) {
-  // The Card In The Array That Are Better
-  int[] betterCards = {1, 2, 5, 6, 9, 12, 14, 15, 16, 17, 18, 20, 23, 24, 28, 29, 31, 32};
   return contains(betterCards, card);
 }
 
@@ -289,7 +299,7 @@ if(timer > 160 && resultsSound == false){
 }if(timer > 240){
   textSize(60);
   textLeading(60);
-  text("You have S-Tier assessment abilities!\n There wasn't a single misstep in your \njudgement or knowledge! Be sure to\n play again to see how well you\n fare against other cards.", width/2, 290);
+  text("You have S-Tier judgement abilities!\n There wasn't a single misstep in your \njudgement or knowledge! Stand pround!\n YOU ARE STRONG!", width/2, 290);
 }}
 if(timer > 140 && textSize < 59){
 textSize += 4;}
