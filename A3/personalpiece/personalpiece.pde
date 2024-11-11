@@ -9,16 +9,16 @@
 import processing.sound.*;
 
 // Declare SoundFile Variables
-SoundFile ambience, paper, drum, sad, okay, nice, cheer, grayt, ding;
+SoundFile ambience, paper, drum, sad, okay, nice, cheer, grayt, ding, buzz;
   // The Card In The Array That Are Better
-  int[] betterCards = {1, 2, 5, 6, 9, 11, 13, 15, 16, 19};
+  int[] betterCards = {1, 2, 5, 6, 9, 11, 13, 15, 16, 19, 21};
 // Declares The Name Of Games
 String[] gameNames = {"MTG", "MTG", "Po-ké-mon!", "Po-ké-mon!", "MTG", "Unstable Unicorns", "Yu-Gi-Oh!", "Yu-Gi-Oh!", "Hearthstone", "MTG", "Yu-Gi-Oh!", "Yu-Gi-Oh!",
-  "MTG", "MTG","MTG", "MTG", "MTG", "MTG", "UNO", "UNO"};
+  "MTG", "MTG","MTG", "MTG", "MTG", "MTG", "UNO", "UNO", "Unstable Unicorns", "UNO", "MTG", "MTG"};
 // Declares The Name Of Cards 
 String[] cardNames = {"Raider.jpg", "Orcs.jpg", "Young.png", "Main.png", "Essence.jpg", "Neigh.png", "Rai.png", "Hole.png", "Intel.png", "Arch.jpg", 
   "Neg.png", "Threat.jpg", "Basari.jpg", "Raid.jpg",  "Thrill.jpg", "Demand.jpg", "Recall.jpg", "Mise.jpg",
-  "Wild.jpg", "+4.jpg", "Board.jpg", "Joker.jpg", "Neigh.png", "Leaf.jpg", "Jail.jpg", "Needle.png", "Ignoble.jpg", "Shinka.jpg",
+  "Wild.jpg", "+4.jpg", "Hang.png", "Skip.jpg", "Counsel.jpg", "Tutor.jpg", "Needle.png", "Ignoble.jpg", "Shinka.jpg",
   "Shira.jpg", "Ordine.png", "Feebas.png", "Sentry.png", "Haunt.jpg", "Nope.jpg", "Rag.jpg", "Greed.png", "Research.png",  "Skip.jpg", "Sun.png" };
 PImage[] cardImages = new PImage[cardNames.length];
 
@@ -58,6 +58,7 @@ void setup() {
   cheer = new SoundFile(this, "data/Cheer.mp3");
   grayt = new SoundFile(this, "data/Great.mp3");
   ding = new SoundFile(this, "data/Ding.mp3");
+  buzz = new SoundFile(this, "data/Wrong.mp3");
   
   // Set up font
   bel = createFont("Beleren2016-Bold.ttf", 1);
@@ -99,13 +100,11 @@ void draw() {
   }
   if(setsSeen == last){
     resultsText();
-    print(setsSeen + "\n");
 }}
 
 void mouseClicked() {
   if ((timer > 80 && setsSeen == last - 1) && (onButton(lx, ly, bw, bh) || onButton(rx, ry, bw, bh))) {
      drum.play(); // Drum sound
-     print("yuh");
   }
 
   // Handle button clicks for scoring
@@ -121,8 +120,13 @@ boolean onButton(int x, int y, int width, int height) {
 void updateScoreAndCards(String side) {
   timer = 0;
   if ((side == "left" && isCorrect(card)) || side == "right" && isCorrect(card + 1)){ding.play(); score++; correct = true;}
-  else{}
+  else{
+  correct = false;
+  buzz.play();
+  }
+  
   paper.play();
+  print(card);
   setsSeen += 1;
   canDraw = true;
 }
@@ -165,9 +169,12 @@ void drawButton(int x, int y, String text, boolean isHovered) {
 }
 
 void explainerText() {
-  if(timer < 50){
+  if(timer < 50 && setsSeen > 1){
     if(correct){
     fill(0, 255, 0);
+    }
+    else{
+    fill(255,0,0);
     }
   }
   else{
@@ -188,7 +195,6 @@ void explainerText() {
 }
 
 void Draw() {
-  print(score);
   if (firstSet) {
     firstSet = false;
     canDraw = false;
@@ -209,6 +215,7 @@ void resultsText(){
 colorCycle = frameCount%360;
 textSize(40); 
 textLeading(30);
+fill(255);
 text("Your card assessment skills are", width/2, 150);
 textSize(textSize);
 if(score >= uhm && score < poor){
