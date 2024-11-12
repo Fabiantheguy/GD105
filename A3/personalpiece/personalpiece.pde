@@ -26,13 +26,13 @@ PImage[] cardImages = new PImage[cardNames.length];
 float ltargetx, ltargety, rtargetx, rtargety;
 String lgame, rgame;
 PFont bel;
-int lx = 100, rx = 800, yx = 430, ly = 750, ry = 750, yy = 750, bw = 420, bh = 100;
+int lx = 100, rx = 800, yx = 430, ly = 750, ry = 750, yy = 750, bw = 420, bh = 100, wx = 480, wy = 750;
 // Handles The Current Card, & Current Score
 int card = 1, score = 0;
 int amazing, great, good, poor, uhm;
 float textSize = 1, redScoreColor;
 int colorCycle, timer;
-boolean saved, resultsSound = false, canDraw = true, firstSet = true, correct = false, wrong = false;
+boolean saved, resultsSound = false, canDraw = true, firstSet = true, correct = false, wrong = false, givingReason = false;
 int setsSeen = 1;
 boolean[] canChoose = new boolean[cardNames.length];
 
@@ -84,6 +84,7 @@ void draw() {
   timer += 1;
   drawButtons();
   explainerText();
+  giveReason();
   if (canDraw) Draw();
 
   if (timer > 5) {
@@ -108,9 +109,17 @@ void mouseClicked() {
   }
 
   // Handle button clicks for scoring
-  if (onButton(lx, ly, bw, bh) && timer > 80 && setsSeen != last) updateScoreAndCards("left");
-  if (onButton(rx, ry, bw, bh) && timer > 80 && setsSeen != last) updateScoreAndCards("right");
-  if (onButton(yx, yy, bw, bh) && timer > 200 && setsSeen == last) resetGame();
+  if (onButton(lx, ly, bw, bh) && timer > 80 && setsSeen != last && givingReason == false) updateScoreAndCards("left");
+  if (onButton(rx, ry, bw, bh) && timer > 80 && setsSeen != last && givingReason == false) updateScoreAndCards("right");
+  if (onButton(yx+20, yy+90, bw, bh) && timer > 200 && givingReason){
+    givingReason = false;
+    setsSeen++;
+    card += 2;
+    paper.play();
+    timer = 0;}
+  if (onButton(yx, yy, bw, bh) && timer > 200 && setsSeen == last){ 
+    resetGame();
+  }
 }
 
 boolean onButton(int x, int y, int width, int height) {
@@ -118,17 +127,13 @@ boolean onButton(int x, int y, int width, int height) {
 }
 
 void updateScoreAndCards(String side) {
-  timer = 0;
   if ((side == "left" && isCorrect(card)) || side == "right" && isCorrect(card + 1)){ding.play(); score++; correct = true;}
   else{
   correct = false;
   buzz.play();
   }
-  
-  paper.play();
+  givingReason = true;
   print(card);
-  setsSeen += 1;
-  canDraw = true;
 }
 
 void resetGame() {
@@ -161,38 +166,51 @@ void drawButtons() {
 }
 
 void drawButton(int x, int y, String text, boolean isHovered) {
-  fill(isHovered ? color(0, 220, 0) : color(0, 255, 0));
-  rect(x, y, bw, bh);
-  fill(255);
-  textSize(45);
-  text(text, x + bw / 2, y + 60);
+  if(givingReason == false){
+    fill(isHovered ? color(0, 220, 0) : color(0, 255, 0));
+    rect(x, y, bw, bh);
+    fill(255);
+    textSize(45);
+    text(text, x + bw / 2, y + 60);
+  }
+  else{
+  fill(255,255,255);
+  textSize(60);
+  rect(yx+20,yy+90,bw,bh);
+  fill(0,0,0);
+  text("Got It!", width/2, yy + 160);
+  }
 }
 
 void explainerText() {
-  if(timer < 50 && setsSeen > 1){
-    if(correct){
-    fill(0, 255, 0);
+  
+    print(givingReason + "\n");
+    
+    textSize(40);
+    if(givingReason){
+      if(correct){
+      fill(0, 255, 0);
+      }
+      else{
+      fill(255,0,0);
+      }
     }
     else{
-    fill(255,0,0);
+      fill(255,255,255);
+    }
+    text("Score: " + score, width/2, 50);
+    if (timer > 60 && setsSeen != last && givingReason == false) {
+      fill(255);
+      textSize(100);
+      text("VS.", 650, 400);
+      textSize(40);
+      text("Which card is", 662.5, 800);
+      text("better?", 662.5, 840);
+      text(lgame, 315, 90);
+      text(rgame, 1015, 90);
     }
   }
-  else{
-    fill(255,255,255);
-  }
-  textSize(40);
-  text("Score: " + score, width/2, 50);
-  if (timer > 60 && setsSeen != last) {
-    fill(255);
-    textSize(100);
-    text("VS.", 650, 400);
-    textSize(40);
-    text("Which card is", 662.5, 800);
-    text("better?", 662.5, 840);
-    text(lgame, 315, 90);
-    text(rgame, 1015, 90);
-  }
-}
+
 
 void Draw() {
   if (firstSet) {
@@ -324,4 +342,21 @@ else{
   text("Retry?", width/2, yy + 70);
 
 }
+}
+void giveReason(){
+  textMode(CENTER);
+  if(givingReason){
+    textSize(60);
+    if(correct){
+    fill(0,255,0);
+    text("CORRECT!", width/2 + 15, height/2 - 70);
+    }
+    else{
+    fill(255,0,0);
+    text("WRONG!", width/2 + 15, height/2 - 70);
+    }
+    textSize(40);
+    if(setsSeen == 1) text("Ironclaw Orcs is better because it can block creatures with power 1 or less while Goblin Raider can't. ", width/2, 720);
+    
+  }
 }
