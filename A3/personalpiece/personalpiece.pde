@@ -5,20 +5,21 @@
    redundant. The game tells the player if they're doing well and I plan
    to make the game give reasons why one card is better in the future.
 */
-// Load the necessaly libraries
+// Load the necessary libraries
 import processing.sound.*;
 
 // Declare SoundFile Variables
 SoundFile ambience, paper, drum, sad, okay, nice, cheer, grayt, ding, buzz;
   // The Card In The Array That Are Better
-  int[] betterCards = {1, 2, 5, 6, 9, 11, 13, 15, 16, 19, 21};
+  int[] betterCards = {1, 2, 5, 6, 9, 11, 13, 15, 16, 19, 20, 23, 25};
+  int[] betterCardsS = {0, 3, 4, 7, 8, 10, 12, 14, 17, 18, 21, 22, 24};
 // Declares The Name Of Games
 String[] gameNames = {"MTG", "MTG", "Po-ké-mon!", "Po-ké-mon!", "MTG", "Unstable Unicorns", "Yu-Gi-Oh!", "Yu-Gi-Oh!", "Hearthstone", "MTG", "Yu-Gi-Oh!", "Yu-Gi-Oh!",
   "MTG", "MTG","MTG", "MTG", "MTG", "MTG", "UNO", "UNO", "Unstable Unicorns", "UNO", "MTG", "MTG"};
 // Declares The Name Of Cards 
 String[] cardNames = {"Raider.jpg", "Orcs.jpg", "Young.png", "Main.png", "Essence.jpg", "Neigh.png", "Rai.png", "Hole.png", "Intel.png", "Arch.jpg", 
   "Neg.png", "Threat.jpg", "Basari.jpg", "Raid.jpg",  "Thrill.jpg", "Demand.jpg", "Recall.jpg", "Mise.jpg",
-  "Wild.jpg", "+4.jpg", "Hang.png", "Skip.jpg", "Counsel.jpg", "Tutor.jpg", "Needle.png", "Ignoble.jpg", "Shinka.jpg",
+  "Wild.jpg", "+4.jpg", "Hang.png", "Skip.jpg", "Counsel.jpg", "Tutor.jpg", "Bite.jpg", "Combat.jpg", "Shinka.jpg",
   "Shira.jpg", "Ordine.png", "Feebas.png", "Sentry.png", "Haunt.jpg", "Nope.jpg", "Rag.jpg", "Greed.png", "Research.png",  "Skip.jpg", "Sun.png" };
 PImage[] cardImages = new PImage[cardNames.length];
 
@@ -31,10 +32,16 @@ int lx = 100, rx = 800, yx = 430, ly = 750, ry = 750, yy = 750, bw = 420, bh = 1
 int card = 1, score = 0;
 int amazing, great, good, poor, uhm;
 float textSize = 1, redScoreColor;
-int colorCycle, timer;
+int colorCycle, timer, rand;
 boolean saved, resultsSound = false, canDraw = true, firstSet = true, correct = false, wrong = false, givingReason = false;
 int setsSeen = 1;
 boolean[] canChoose = new boolean[cardNames.length];
+
+float leftCardWidth = 420, leftCardHeight = 585;
+float rightCardWidth = 420, rightCardHeight = 585;
+float enlargedWidth = 460 * 1.2, enlargedHeight = 625 * 1.2; // Larger size for hover effect
+
+
 
 // Sets The Last Set To Be Right After The Last Set Of Cards Is Shown
 int last = (gameNames.length / 2) + 1;
@@ -83,7 +90,9 @@ void draw() {
   background(0);
   timer += 1;
   drawButtons();
+  if(setsSeen != last){
   explainerText();
+  }
   giveReason();
   if (canDraw) Draw();
 
@@ -111,12 +120,14 @@ void mouseClicked() {
   // Handle button clicks for scoring
   if (onButton(lx, ly, bw, bh) && timer > 80 && setsSeen != last && givingReason == false) updateScoreAndCards("left");
   if (onButton(rx, ry, bw, bh) && timer > 80 && setsSeen != last && givingReason == false) updateScoreAndCards("right");
-  if (onButton(yx+20, yy+90, bw, bh) && timer > 200 && givingReason){
+  if (onButton(yx+20, yy+90, bw, bh) && timer > 130 && givingReason){
     givingReason = false;
     setsSeen++;
     card += 2;
     paper.play();
-    timer = 0;}
+    timer = 0;
+    canDraw = true;
+}
   if (onButton(yx, yy, bw, bh) && timer > 200 && setsSeen == last){ 
     resetGame();
   }
@@ -133,7 +144,6 @@ void updateScoreAndCards(String side) {
   buzz.play();
   }
   givingReason = true;
-  print(card);
 }
 
 void resetGame() {
@@ -150,13 +160,49 @@ paper.play();
 
 void cycleCards() {
   if (!canDraw && setsSeen < last) {
-    lgame = gameNames[card];
-    rgame =  gameNames[card + 1];;
-    image(cardImages[card], ltargetx, ltargety);
-    image(cardImages[card + 1], rtargetx, rtargety);
+    PImage leftCard, rightCard;
+    
+    if (rand == 0) {
+      leftCard = cardImages[card];
+      rightCard = cardImages[card + 1];
+    } else {
+      leftCard = cardImages[card + 1];
+      rightCard = cardImages[card];
+    }
+
+    // Check if mouse is hovering over the left card
+    if (mouseX >= ltargetx && mouseX <= ltargetx + leftCardWidth/ 1.1 &&
+        mouseY >= ltargety && mouseY <= ltargety + leftCardHeight/ 1.1) {
+      // Lerp to enlarged size
+      leftCardWidth = lerp(leftCardWidth, enlargedWidth, 0.1);
+      leftCardHeight = lerp(leftCardHeight, enlargedHeight, 0.1);
+    } else {
+      // Lerp back to normal size
+      leftCardWidth = lerp(leftCardWidth, 420, 0.1);
+      leftCardHeight = lerp(leftCardHeight, 585, 0.1);
+    }
+
+    // Check if mouse is hovering over the right card
+    if (mouseX >= rtargetx && mouseX <= rtargetx + rightCardWidth/ 1.1 &&
+        mouseY >= rtargety && mouseY <= rtargety + rightCardHeight/ 1.1) {
+      // Lerp to enlarged size
+      rightCardWidth = lerp(rightCardWidth, enlargedWidth, 0.1);
+      rightCardHeight = lerp(rightCardHeight, enlargedHeight, 0.1);
+    } else {
+      // Lerp back to normal size
+      rightCardWidth = lerp(rightCardWidth, 420, 0.1);
+      rightCardHeight = lerp(rightCardHeight, 585, 0.1);
+    }
+
+    // Draw left and right cards with lerped dimensions
+    image(leftCard, ltargetx - (leftCardWidth - 420) / 2, ltargety - (leftCardHeight - 585) / 2, leftCardWidth, leftCardHeight);
+    image(rightCard, rtargetx - (rightCardWidth - 420) / 2, rtargety - (rightCardHeight - 585) / 2, rightCardWidth, rightCardHeight);
+
     canChoose[card] = false;
   }
 }
+
+ 
 
 void drawButtons() {
   if (timer > 60 && setsSeen != last) {
@@ -174,18 +220,20 @@ void drawButton(int x, int y, String text, boolean isHovered) {
     text(text, x + bw / 2, y + 60);
   }
   else{
-  fill(255,255,255);
-  textSize(60);
-  rect(yx+20,yy+90,bw,bh);
-  fill(0,0,0);
-  text("Got It!", width/2, yy + 160);
+    if(!onButton(yx+20, yy+90, bw,bh)){
+      fill(255);
+    }
+    else{
+      fill(220);
+    }
+    textSize(60);
+    rect(yx+20, yy+90, bw,bh);
+    fill(0,0,0);
+    text("Got It!", width/2, yy + 160);
   }
 }
 
-void explainerText() {
-  
-    print(givingReason + "\n");
-    
+void explainerText() {  
     textSize(40);
     if(givingReason){
       if(correct){
@@ -213,15 +261,36 @@ void explainerText() {
 
 
 void Draw() {
-  if (firstSet) {
-    firstSet = false;
-    canDraw = false;
-  }
-  else{canDraw = false;; card += 2;
-}
+    rand = int(random(0, 2));
+    //rand = 1;
+    print(card);
+    if(setsSeen != last){
+      if(rand == 0){
+        print("Normal");
+        lgame = gameNames[card];
+        rgame =  gameNames[card + 1];
+        }
+      else{
+        print("Swapped");
+        lgame = gameNames[card + 1];
+        rgame =  gameNames[card];
+        }
+      if (firstSet) {
+        firstSet = false;
+        canDraw = false;
+      }
+      else{
+        canDraw = false;;
+        }
+      }
 }
 boolean isCorrect(int card) {
+  if(rand == 0){
   return contains(betterCards, card);
+  }
+  else{
+  return contains(betterCardsS, card);
+  }
 }
 
 boolean contains(int[] array, int value) {
@@ -344,7 +413,6 @@ else{
 }
 }
 void giveReason(){
-  textMode(CENTER);
   if(givingReason){
     textSize(60);
     if(correct){
@@ -355,8 +423,12 @@ void giveReason(){
     fill(255,0,0);
     text("WRONG!", width/2 + 15, height/2 - 70);
     }
-    textSize(40);
-    if(setsSeen == 1) text("Ironclaw Orcs is better because it can block creatures with power 1 or less while Goblin Raider can't. ", width/2, 720);
-    
+    textSize(35);
+    textLeading(35);
+    if(setsSeen == 1) text("Ironclaw Orcs is better because although both cards have the \n same cost and stats, it can block creatures with power 1 or less \n while Goblin Raider can't. ", width/2, 720);
+    if(setsSeen == 2) text("Youngster is better because it has the possibility to give you a larger \n number of cards in your hand compared to before you played it, whereas \n Maintenance will always cause you to end up with 2 fewer cards.\n (Keep in mind that Maintenance is one of the cards you lose).", width/2, 720);
+    if(setsSeen == 3) text("Although both can make cards ineffective, Neigh is better because \n not only does it not have a cost (as displayed in the top-right corner of \n Essence Scatter), but it also can stop any card, compared to \n Essence Scatter which is limited to creatures.", width/2, 720);
+    if(setsSeen == 4) text("Raigeki is better because it can specifically destroy your \n opponent's monsters, while Black Hole will also destroy yours.", width/2, 720);
+    if(setsSeen == 5) text("Archmage's Charm is better because although it has the \n same cost and offers the same effect as Arcane Intellect, it offers other effects that can be better options in different situations is better because \n not only does it not have a cost (as displayed in the top-right corner of \n Essence Scatter), but it also can stop any card, compared to \n Essence Scatter which is limited to creatures.", width/2, 720);
   }
 }
