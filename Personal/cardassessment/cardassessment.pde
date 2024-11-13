@@ -308,8 +308,7 @@ else{
   rect(yx,yy,bw,bh);
   fill(255);
   text("Retry?", 500, 615);
-
-}
+}  
 }
 
 void resetGame(){
