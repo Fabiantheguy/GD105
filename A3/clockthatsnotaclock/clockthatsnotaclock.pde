@@ -152,12 +152,12 @@ void DrawTime(){
   if(changeTime >= 0 && changeTime < 2){ 
   stroke(170,224,250,255);
   line(cx/2, cy, cx * 1.5, cy);
-  MakeSymbols(blue, auSymPos);
+  MakeSymbols(blue, puSymPos);
 }
   if(changeTime >= 12 && changeTime < 14){ 
   stroke(170,224,250,255);
   line(cx/2, cy, cx * 1.5, cy);
-  MakeSymbols(blue, auSymPos);
+  MakeSymbols(blue, puSymPos);
 }
   if(changeTime >= 2 && changeTime < 4){ 
   stroke(255,251,214,255);
