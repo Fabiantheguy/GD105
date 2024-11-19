@@ -11,16 +11,16 @@ import processing.sound.*;
 // Declare SoundFile Variables
 SoundFile ambience, paper, drum, sad, okay, nice, cheer, grayt, ding, buzz;
   // The Card In The Array That Are Better
-  int[] betterCards = {1, 2, 5, 6, 9, 11, 13, 15, 16, 19, 20, 23, 25};
-  int[] betterCardsS = {0, 3, 4, 7, 8, 10, 12, 14, 17, 18, 21, 22, 24};
+  int[] betterCards = {1, 2, 5, 6, 9, 11, 13, 15, 16, 19, 20, 23, 25, 26};
+  int[] betterCardsS = {0, 3, 4, 7, 8, 10, 12, 14, 17, 18, 21, 22, 24, 27};
 // Declares The Name Of Games
 String[] gameNames = {"MTG", "MTG", "Po-ké-mon!", "Po-ké-mon!", "MTG", "Unstable Unicorns", "Yu-Gi-Oh!", "Yu-Gi-Oh!", "Hearthstone", "MTG", "Yu-Gi-Oh!", "Yu-Gi-Oh!",
   "MTG", "MTG","MTG", "MTG", "MTG", "MTG", "UNO", "UNO", "Unstable Unicorns", "UNO", "MTG", "MTG", "MTG", "Legends of Runeterra"};
 // Declares The Name Of Cards 
 String[] cardNames = {"Raider.jpg", "Orcs.jpg", "Young.png", "Main.png", "Essence.jpg", "Neigh.png", "Rai.png", "Hole.png", "Intel.png", "Arch.jpg", 
   "Neg.png", "Threat.jpg", "Basari.jpg", "Raid.jpg",  "Thrill.jpg", "Demand.jpg", "Recall.jpg", "Mise.jpg",
-  "Wild.jpg", "+4.jpg", "Hang.png", "Skip.jpg", "Counsel.jpg", "Tutor.jpg", "Bite.jpg", "Combat.jpg", "Shinka.jpg",
-  "Shira.jpg", "Ordine.png", "Feebas.png", "Sentry.png", "Haunt.jpg", "Nope.jpg", "Rag.jpg", "Greed.png", "Research.png",  "Skip.jpg", "Sun.png" };
+  "Wild.jpg", "+4.jpg", "Hang.png", "Skip.jpg", "Counsel.jpg", "Tutor.jpg", "Bite.jpg", "Combat.jpg", "Greed.png",
+  "Rag.jpg", "Reanimate.jpg", "Reborn.jpg", "Sentry.png", "Haunt.jpg", "Nope.jpg", "Rag.jpg", "Greed.png", "Research.png",  "Skip.jpg", "Sun.png" };
 PImage[] cardImages = new PImage[cardNames.length];
 
 // Set Target Areas For Cards;
@@ -429,6 +429,9 @@ void giveReason(){
     if(setsSeen == 2) text("Youngster is better because it has the possibility to give you a larger \n number of cards in your hand compared to before you played it, whereas \n Maintenance will always cause you to end up with 2 fewer cards.\n (Keep in mind that Maintenance is one of the cards you lose).", width/2, 720);
     if(setsSeen == 3) text("Although both can make cards ineffective, Neigh is better because \n not only does it not have a cost (as displayed in the top-right corner of \n Essence Scatter), but it also can stop any card, compared to \n Essence Scatter which is limited to creatures.", width/2, 720);
     if(setsSeen == 4) text("Raigeki is better because it can specifically destroy your \n opponent's monsters, while Black Hole will also destroy yours.", width/2, 720);
-    if(setsSeen == 5) text("Archmage's Charm is better because although it has the \n same cost and offers the same effect as Arcane Intellect, it offers other effects that can be better options in different situations.", width/2, 720);
-  }
+    if(setsSeen == 5) text("Archmage's Charm is better because although it has the same cost \n and offers the same effect as Arcane Intellect, it offers other \n effects that can be better options in different situations.", width/2, 720);
+    if(setsSeen == 6) text("Threatening Roar is better because although both cards \n virtually deny your opponenent from attacking you for a turn, \n Negate Attack requires you to wait for your opponent to attack, \n while Threatening Roar can be used at any time.", width/2, 720);
+    if(setsSeen == 7) text("Requisition Raid is better because it has the possibilty \n of having the same cost and effect as Basri's Solidarity while \n also having the possibility of getting other effects. \n (It can gain every effect in its text at once!)", width/2, 720);
+    if(setsSeen == 8) text("Demand Answers is better because you can choose to \n discard or sacrifice to cast it, while Thrill of Possibility always requires a discard.", width/2, 720);
+ }
 }

@@ -18,10 +18,11 @@ class Particle {
   PVector position;
   PVector velocity;
   PVector acceleration;
-  color col;
+  color originalColor; // Store the original color
+  color col; // Current color (may change to white for landed particles)
   float angle;        // Current angle for spinning
   float angularSpeed; // Speed of rotation
-  int shapeType;      // 0: Circle, 1: Rectangle, 2: Triangle
+  int shapeType;      // 0: Circle, 1: Rectangle, 2: Triangle, 3: Square (Landed)
   float size;
 
   Particle(float x, float y, color c) {
@@ -30,8 +31,9 @@ class Particle {
     acceleration = new PVector(0, 0.1);     // Gravity-like force
     angle = random(TWO_PI);
     angularSpeed = random(-0.1, 0.1); // Random spin
-    col = c;
-    shapeType = int(random(3));       // Random shape
+    originalColor = c;  // Store the original color
+    col = originalColor; // Initially, the color is the original color
+    shapeType = int(random(3));       // Random shape (circle, rectangle, triangle)
     size = random(10, 20);            // Random size
   }
 
@@ -41,12 +43,12 @@ class Particle {
     angle += angularSpeed; // Rotate as it falls
   }
 
-  void display(color overrideColor) {
+  void display() {
     pushMatrix();
     translate(position.x, position.y);
     rotate(angle);
     noStroke();
-    fill(overrideColor);
+    fill(col);
     drawShape();
     popMatrix();
   }
@@ -63,27 +65,50 @@ class Particle {
       case 2:
         triangle(-size / 2, size / 2, size / 2, size / 2, 0, -size / 2);
         break;
+      case 3:
+        rectMode(CENTER);
+        rect(0, 0, size, size); // Draw as a square
+        break;
     }
   }
 
   boolean hasLanded(ArrayList<Particle> pileParticles) {
     for (Particle other : pileParticles) {
+      // Check if particles are close enough on the x-axis and the shard is falling
       if (abs(position.x - other.position.x) < (size + other.size) / 2 &&
           position.y + size / 2 >= other.position.y - other.size / 2) {
-        position.y = other.position.y - (size / 2 + other.size / 2); // Align to the top of the other
-        return true;
+        
+        // Align the new shard directly above the one it lands on
+        position.y = other.position.y - (size / 2 + other.size / 2); // Adjust Y position to sit on top of the other
+
+        // Align the x position so that all shards form a straight line
+        position.x = other.position.x; // Align the x position exactly
+
+        return true; // The particle has landed
       }
     }
+    
+    // If the shard reaches the bottom of the screen, stop it
     if (position.y + size / 2 >= height) {
-      position.y = height - size / 2; // Align to the bottom of the screen
+      position.y = height - size / 2;
       return true;
     }
+    
     return false;
   }
 
   void stop() {
     velocity.set(0, 0);
     acceleration.set(0, 0);
+  }
+
+  void transformToSquare() {
+    shapeType = 3; // Change shape to square
+    angle = 0;     // Reset the rotation angle
+  }
+
+  void turnWhite() {
+    col = color(255); // Turn the color to white
   }
 }
 
@@ -125,17 +150,21 @@ void draw() {
 
     if (p.hasLanded(pileParticles)) {
       p.stop();
+      p.transformToSquare(); // Transform the particle to a square when it lands
       pileParticles.add(p); // Add to pileParticles
       particles.remove(i);
       playRandomSound();
     } else {
-      p.display(p.col);
+      p.display();
     }
   }
 
-  // Display the pile
+  // Resolve overlaps in pileParticles
+  resolveOverlap();
+
+  // Display the pile with colors
   for (Particle p : pileParticles) {
-    p.display(p.col);
+    p.display();
   }
 
   // Update the shard count to match pileParticles
@@ -155,7 +184,7 @@ void draw() {
     fill(255);
     textSize(32);
     textAlign(CENTER, CENTER);
-    text("Cost: " + buttonCosts[i], width / 2, yPos - 50);
+    text("Cost  " + buttonCosts[i], width / 2, yPos - 50);
 
     if (isMouseOverButton(yPos)) {
       fill(140, 0, 0);
@@ -180,20 +209,21 @@ void mousePressed() {
     // Check if enough shards are available before decrementing
     if (shard >= buttonCosts[0]) {
       shard -= buttonCosts[0]; // Deduct shards
-      buttonCosts[0] = int(buttonCosts[0] * 1.1); // Increase cost
-      spawnRateInterval = int(spawnRateInterval * 0.95);
+      spawnRateInterval = int(spawnRateInterval * .95); // Increase spawn rate by 5%
 
       // Remove particles from pileParticles
       int numToRemove = buttonCosts[0];
       int removedCount = 0;
 
-      while (removedCount < numToRemove && !pileParticles.isEmpty()) {
-        pileParticles.remove(pileParticles.size() - 1);
+      // Loop through the pile and remove particles until the required number is removed
+      for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
+        pileParticles.remove(i);
         removedCount++;
       }
+      buttonCosts[0] = int(buttonCosts[0] * 1.1); // Increase cost
     }
   } else {
-    particles.add(new Particle(mouseX, mouseY, getRandomHotColor()));
+    particles.add(new Particle(mouseX, 0, getRandomHotColor()));
   }
 }
 
@@ -203,14 +233,35 @@ color getRandomHotColor() {
     case 0: return color(255,122,229);
     case 1: return color(255, 93, 18);
     case 2: return color(102, 255, 227);
-    case 3: return color(193, 255, 48);
-    case 4: return color(255,255,53);
-    case 5: return color(52,194,252);
+    case 3: return color(99, 44, 255);
+    case 4: return color(251, 145, 51);
+    case 5: return color(226, 64, 122);
     default: return color(255,122,229);
   }
 }
 
 void playRandomSound() {
-  int randomIndex = int(random(7));
+  int randomIndex = int(random(sounds.length));
   sounds[randomIndex].play();
+}
+
+void resolveOverlap() {
+  for (int i = 0; i < pileParticles.size(); i++) {
+    Particle p1 = pileParticles.get(i);
+    for (int j = i + 1; j < pileParticles.size(); j++) {
+      Particle p2 = pileParticles.get(j);
+
+      // Check for overlap
+      if (abs(p1.position.x - p2.position.x) < (p1.size + p2.size) / 2 &&
+          abs(p1.position.y - p2.position.y) < (p1.size + p2.size) / 2) {
+        
+        // Resolve overlap by adjusting Y position
+        if (p1.position.y < p2.position.y) {
+          p1.position.y = p2.position.y - (p1.size / 2 + p2.size / 2);
+        } else {
+          p2.position.y = p1.position.y - (p1.size / 2 + p2.size / 2);
+        }
+      }
+    }
+  }
 }
