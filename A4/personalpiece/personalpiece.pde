@@ -1,3 +1,10 @@
+/* 
+  This code aims to have particles that follow the player's mouse if the
+  player is not clicking. When the player clicks/holds the mouse down, the particles
+  instead, repel away.
+  
+*/
+
 ArrayList<AetherParticle> particles;
 color[] palette = {
   color(255, 122, 229),  // Pink
@@ -17,7 +24,8 @@ void setup() {
 }
 
 void draw() {
-  background(0, 40); // Fade effect
+  fill(0, 35); // Semi-transparent black for fade
+  rect(0, 0, 1000000, 1000000); // Fade effect covering the screen
   for (AetherParticle p : particles) {
     p.update();
     p.checkEdges(); // Bounce off walls
@@ -64,7 +72,7 @@ class AetherParticle {
   }
 
   void applyForce(PVector force) {
-    acceleration.add(force);
+    acceleration.add(force.add(PVector.random2D().mult(.3)));
   }
 
   void checkEdges() {

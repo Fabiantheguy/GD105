@@ -1,0 +1,9 @@
+{
+  "criticalChance": 0.5249999761581421,
+  "criticalAmount": 2,
+  "decayRateInterval": 180,
+  "spawnRateInterval": 60,
+  "shard": 7,
+  "clickAmount": 1,
+  "decayPercentage": 0.05000000074505806
+}

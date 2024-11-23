@@ -1,12 +1,20 @@
 /*
   The goal of this piece is to replicate the animation of shards landing in the
   pile in (the) Gnorp Apologue. Random shapes will drop which represents the 
-  shard
+  shard amount at the top of the screen.
 
 */
 import processing.sound.*;
 import java.util.ArrayList;
+import java.io.File;
+import java.io.PrintWriter;
+import processing.data.JSONObject;
 
+// File to store game data
+String saveFile = "gameData.json";
+JSONObject gameData; // JSON where data is stored
+boolean isLoaded = false; // Checks if the player has loaded data
+File file = new File(saveFile);
 
 ArrayList<Particle> particles;
 ArrayList<Particle> pileParticles;
@@ -23,6 +31,10 @@ int randPosition; // The position that shards randomly spawn at
 int numToRemove; // Amount of shards to remove
 boolean showButtons;
 int fadeTimer; // The timer that tracks how long buttons have been fading
+int saveTimer = 60; // The timer that lets the save fade
+int clickTimer; // The timer that urges the player to click
+int clickTextSize = 30; // Text size for urging to click
+boolean clickTextFalling = false; // Checks if text size is falling
 SoundFile upgrade, deny, click;
 
 // Array for button labels
@@ -161,7 +173,7 @@ void draw() {
   randPosition = (int(random(1, (int(width) / 13))) * 13);
   // Spawn new particles
   if (frameCount % spawnRateInterval == 0) {
-    if (random(1) < criticalChance) {
+    if (random(100) < criticalChance) {
       // Spawn 30 shards if the random number is less than criticalChance
       for (int i = 0; i < criticalAmount; i++) {
         particles.add(new Particle(randPosition, 0, getGnorpColor()));
@@ -331,6 +343,39 @@ void draw() {
   text(clickAmount + " shards per click", width - 20, 150);
   text(String.format("%.2f", criticalChance) + "%" + " Crit Chance", width - 20, 200);
   text((int)criticalAmount + "x" + " Shards Spawned On Crit", width - 20, 250);
+  if (fadeTimer > 5 && !isLoaded){ // Waits and checks if the game has loaded
+      loadGameData(); // Loads in game data
+      isLoaded = true;
+  }
+  saveTimer++;
+  clickTimer++;
+  if (saveTimer < 60){
+    textSize(27);
+    textAlign(LEFT, BOTTOM);
+    fill(0,255,0);
+    text("Game Saved!!!" , 20, 950);
+  }
+  if (clickTimer > 300){  
+    if(clickTextSize < 75 && !clickTextFalling){
+      clickTextSize++;
+    }else{
+      clickTextFalling = true;
+    }
+    if (clickTextFalling && clickTextSize > 30){
+      clickTextSize--;
+    }
+    if (clickTextSize <= 30){
+      clickTextFalling = false;
+    }
+    textSize(clickTextSize);
+    textAlign(CENTER, CENTER);
+    fill(255);
+    text("Click to drop shards!!!" , width/2, height/2);
+  }
+  if (frameCount % 200 == 0){
+    saveGameData();
+    saveTimer = 0;
+  }
 }
 
 
@@ -343,6 +388,7 @@ boolean isMouseOverButton(int yPos) {
 }
 
 void mousePressed() {
+  clickTimer = 0;
   // Check if the "Upgrades" button is clicked
   if (isMouseOverButton(100)) {
     showButtons = !showButtons; // Toggle the visibility of the other buttons
@@ -417,7 +463,7 @@ void mousePressed() {
   }
   if(!isMouseOverButton(100) && !isMouseOverButton(buttonYs[0])){
     int snappedX = int(mouseX / 13) * 13; // Snap mouseX to the nearest multiple of 13
-    if (random(1) < criticalChance) {
+    if (random(100) < criticalChance) {
       // Spawn 30 shards if the random number is less than criticalChance
       for (int i = 0; i < (criticalAmount * clickAmount); i++) {
         particles.add(new Particle(snappedX, 0, getGnorpColor()));
@@ -496,4 +542,57 @@ void resolveOverlap() {
       }
     }
   }
+}
+void loadGameData() {
+
+  println("Save file found. Loading data...");
+  gameData = loadJSONObject(saveFile);
+  spawnRateInterval = gameData.getFloat("spawnRateInterval");
+  decayRateInterval = gameData.getFloat("decayRateInterval");
+  decayPercentage = gameData.getFloat("decayPercentage");
+  criticalChance = gameData.getFloat("criticalChance");
+  criticalAmount = gameData.getFloat("criticalAmount");
+  clickAmount = gameData.getFloat("clickAmount");
+  print(gameData.getFloat("shard"));
+  for(int i = 0; i < gameData.getFloat("shard"); i++){
+      print("e");
+      randPosition = (int(random(1, (int(width) / 13))) * 13);
+      particles.add(new Particle(randPosition, 0, getGnorpColor()));
+  }
+
+  
+  println("Welcome back!");
+  println("Loaded settings:");
+  println(gameData.toString());
+}
+
+
+void saveGameData() {
+  if(saveFile != null){
+  gameData.setFloat("spawnRateInterval", spawnRateInterval);
+  gameData.setFloat("decayRateInterval", decayRateInterval);
+  gameData.setFloat("decayPercentage", decayPercentage);
+  gameData.setFloat("criticalChance", criticalChance);
+  gameData.setFloat("criticalAmount", criticalAmount);
+  gameData.setFloat("clickAmount", clickAmount);
+  gameData.setFloat("shard", shard);
+  saveJSONObject(gameData, saveFile);
+  }
+  else{
+    gameData = new JSONObject();
+  }
+}
+
+void keyPressed() {
+  // Allow exit and save on key press
+  if (key == 'q' || key == 'Q') {
+    println("Saving game and exiting...");
+    print(shard);
+    saveGameData();
+    exit();
+  }
+  if (key == 'e' || key == 'E') {
+    loadGameData();
+  }
+
 }
