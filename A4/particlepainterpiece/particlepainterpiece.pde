@@ -23,14 +23,16 @@ SoundFile[] sounds; // Array to hold sound effects
 int shard = 0; // Initialize shard
 PFont arcadelFont; // Font object to hold ARCADECLASSIC.TTF
 float spawnRateInterval = 60; // Initial spawn rate interval
-float decayRateInterval = 180; // Initial decay rate interval
+int decayRateInterval = 180; // Initial decay rate interval
 float decayPercentage = 0.05; // Percentage of shards removed
 float criticalChance = 0.5; // Chance to spawn extra shards
 float criticalAmount = 2; // Amount of shards spawned off of a critical
 float clickAmount = 1; //Amount of shards spawned on click
+int shardWorth = 1;
 int randPosition; // The position that shards randomly spawn at
 int numToRemove; // Amount of shards to remove
-boolean showButtons;
+boolean showButtons; // Checks if upgrades are visible
+boolean showStats; // Checks if stats are visible
 int fadeTimer; // The timer that tracks how long buttons have been fading
 int clickTimer; // The timer that urges the player to click
 int clickTextSize = 30; // Text size for urging to click
@@ -38,13 +40,13 @@ boolean clickTextFalling = false; // Checks if text size is falling
 SoundFile upgrade, deny, click;
 
 // Array for button labels
-String[] buttonLabels = {"Spawn Rate UP", "Click UP", "Crit Chance UP", "Crit Amount UP", "Decay Rate Down", "Decay Loss Down" };
-int[] buttonCosts = {10, 50, 5, 25, 30, 30}; // Initial cost for "Spawn UP" set to 30
-boolean[] greenTexts = {false, false, false, false, false, false}; // Flag to control green text
-int[] greenTextTimers = {0, 0, 0, 0, 0, 0};        // Timer for how long text stays green
+String[] buttonLabels = {"Spawn Rate UP", "Click UP", "Crit Chance UP", "Crit Amount UP", "Decay Speed Down", "Decay Loss Down", "Rebirth" };
+int[] buttonCosts = {10, 50, 5, 25, 20, 30, 1}; // Initial cost for "Spawn UP" set to 30
+boolean[] greenTexts = {false, false, false, false, false, false, false}; // Flag to control green text
+int[] greenTextTimers = {0, 0, 0, 0, 0, 0, 0};        // Timer for how long text stays green
 boolean redShards = false; // Flag to control green text
 int redShardTimer = 60;        // Timer for how long text stays green
-int[] buttonYs = {250, 350, 450, 550, 650, 750}; // Y positions for each button
+int[] buttonYs = {250, 350, 450, 550, 650, 750, 950}; // Y positions for each button
 int buttonWidth = 300; // Button width
 int buttonHeight = 50; // Button height
 
@@ -115,7 +117,7 @@ class Particle {
 
   boolean hasLanded(ArrayList<Particle> pileParticles) {
     for (Particle other : pileParticles) {
-      // Check if particles are close enough on the x-axis and the shard is falling
+      // Check if particles are close enough on the x-axis and the  is falling
       if (abs(position.x - other.position.x) < (size + other.size) / 2 &&
           position.y + size / 2 >= other.position.y - other.size / 2) {
         
@@ -220,7 +222,7 @@ void draw() {
   }
 
   // Update the shard count to match pileParticles
-  shard = pileParticles.size();
+  shard = pileParticles.size() * shardWorth;
 
   // Display shard count
   textFont(arcadelFont);
@@ -239,93 +241,15 @@ void draw() {
       redShards = false; // Stop showing green text
         }
   }  
-  
-  
-  text("Shards  " + shard, width / 2, 20); // Move down 100 pixels
-
-  // Display the "Upgrades" button
-  fill(0, 255, 0); // Green color for the upgrades button
-  if (isMouseOverButton(100)) {
-    fill(0, 200, 0); // Darker green when hovered
-  }
-  rectMode(CENTER);
-  rect(width / 2, 100, buttonWidth, buttonHeight);
-  fill(255);
-  textSize(30);
-  text("Upgrades", width / 2, 85);
-
-  // Only show other buttons if showButtons is true
-  if (showButtons) {
-    fadeTimer = 0;
-    // Display the other buttons
-    for (int i = 0; i < buttonLabels.length; i++) {
-      int yPos = buttonYs[i];
-
-      fill(255);
-      textSize(32);
-      textAlign(CENTER, CENTER);
-      text("Cost  " + buttonCosts[i], width / 2, yPos - 50);
-      
-      if (shard < buttonCosts[i]) {
-        if(isMouseOverButton(yPos)){         
-          fill(140, 0, 0); //Mouse Hovering Over
-        }
-        else {
-          fill(200, 0, 0); // Mouse Not Hovering Over
-        }
-      }
-      
-      // Check if "Spawn UP" is at its max level (spawnRateInterval == 1)
-      if ((spawnRateInterval * .95) < 1 && i == 0) {
-        buttonLabels[0] = "MAX"; // Change the label to "MAX"
-        fill(30,30,30); // Make the button appear disabled
-      } 
-      if (clickAmount == 10 && i == 1) {
-        buttonLabels[1] = "MAX"; // Change the label to "MAX"
-        fill(30,30,30); // Make the button appear disabled
-      } 
-      if (criticalChance == 80 && i == 2) {
-        buttonLabels[2] = "MAX"; // Change the label to "MAX"
-        fill(30,30,30); // Make the button appear disabled
-      } 
-      if (criticalAmount == 5 && i == 3) {
-        buttonLabels[3] = "MAX"; // Change the label to "MAX"
-        fill(30,30,30); // Make the button appear disabled
-      } 
-      if (decayRateInterval == 1800 && i == 4) {
-        buttonLabels[4] = "MAX"; // Change the label to "MAX"
-        fill(30,30,30); // Make the button appear disabled
-      } 
-      if ((decayPercentage * .95) < 1 && i == 5) {
-        buttonLabels[5] = "MAX"; // Change the label to "MAX"
-        fill(30,30,30); // Make the button appear disabled
-      } 
-      if (shard >= buttonCosts[i] && buttonLabels[i] != "MAX") {
-        if(isMouseOverButton(yPos)){
-          fill(150, 150, 0); // Mouse Not Hovering Over
-        }
-        else {
-          fill(220, 220, 0); //Mouse Hovering Over
-        } 
-      } 
-      
-      rect(width / 2, yPos, buttonWidth, buttonHeight);
-
-      fill(255);
-      textSize(20);
-      text(buttonLabels[i], width / 2, yPos);
-    }
-  }
-  else{
-    fadeTimer++;
-  }
+   text("Shards  " + shard, width / 2, 20);
+   ShowButtons();
 // Every 1000 frames, remove 10% of the shards from pileParticles
   if (frameCount % decayRateInterval == 0 && pileParticles.size() > 0) {
-    if(decayPercentage * shard < .9){
-     numToRemove = int(pileParticles.size() * (decayPercentage * shard)); // 10% of total particles
+    if((decayPercentage * shard) / shardWorth < .9){
+      numToRemove = int((pileParticles.size()) * (decayPercentage * (shard / shardWorth))); // 10% of total particles
     }
     else{
-     numToRemove = int(pileParticles.size() * .9); // 10% of total particles
+      numToRemove = int(pileParticles.size() * .9); // 10% of total particles
     }
     for (int i = 0; i < numToRemove; i++) {
       pileParticles.remove(pileParticles.size() - 1); // Remove from the end of the list
@@ -362,6 +286,7 @@ void draw() {
   textSize(28);
   text("SPAWN", width - 20, 10); // Move down 100 pixels
   ShowStats();
+ 
 
   if (fadeTimer > 5 && !isLoaded){ // Waits and checks if the game has loaded
       loadGameData(); // Loads in game data
@@ -369,21 +294,21 @@ void draw() {
   }
   clickTimer++;
   if (clickTimer > 300){  
-    if(clickTextSize < 75 && !clickTextFalling){
+    if(clickTextSize < 65 && !clickTextFalling){
       clickTextSize++;
     }else{
       clickTextFalling = true;
     }
-    if (clickTextFalling && clickTextSize > 30){
+    if (clickTextFalling && clickTextSize > 45){
       clickTextSize--;
     }
-    if (clickTextSize <= 30){
+    if (clickTextSize <= 45){
       clickTextFalling = false;
     }
     textSize(clickTextSize);
     textAlign(CENTER, CENTER);
     fill(255);
-    text("Click to drop shards!!!" , width/2, height/2);
+    text("Click to drop more shards!!!" , width/2, height/2);
   }
   if (!firstSave && frameCount % 60 == 0){ // Time until game saves
       saveGameData();
@@ -407,156 +332,233 @@ boolean isMouseOverButton(int yPos) {
 
 void mousePressed() {
   clickTimer = 0;
-  // Check if the "Upgrades" button is clicked
-  if (isMouseOverButton(100)) {
-    showButtons = !showButtons; // Toggle the visibility of the other buttons
-    click.play();
-  }
-
-  // Check if any other buttons are clicked (if visible)
-  if (showButtons) {
-    if (isMouseOverButton(buttonYs[0])) { // Spawn Up
-      if (spawnRateInterval * .95 > 1){
-        if (shard >= buttonCosts[0]) {
-          upgrade.play();
-          shard -= buttonCosts[0]; // Deduct shards
-          spawnRateInterval = int(spawnRateInterval * .95); // Increase spawn rate by 5%
+  if (mouseButton == LEFT) {
+    // Check if the "Upgrades" button is clicked
+    if (isMouseOverButton(100)) {
+      showButtons = !showButtons; // Toggle the visibility of the other buttons
+      click.play();
+    }
+    // Check if the "Stats" button is clicked
+    if (isMouseOverButton(150)) {
+      showStats = !showStats; // Toggle the visibility of the stats
+      click.play();
+    }
   
-          // Remove particles from pileParticles
-          int numToRemove = buttonCosts[0];
-          int removedCount = 0;
-  
-          for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
-            pileParticles.remove(i);
-            removedCount++;
+    // Check if any other buttons are clicked (if visible)
+    if (showButtons) {
+      if (isMouseOverButton(buttonYs[0])) { // Spawn Up
+        if (spawnRateInterval * .95 > 1){
+          if (shard >= buttonCosts[0]) {
+            upgrade.play();
+            shard -= buttonCosts[0]; // Deduct shards
+            spawnRateInterval = int(spawnRateInterval * .95); // Increase spawn rate by 5%
+    
+            // Remove particles from pileParticles
+            int numToRemove = buttonCosts[0];
+            int removedCount = 0;
+    
+            for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
+              pileParticles.remove(i);
+              removedCount++;
+            }
+            buttonCosts[0] = int(buttonCosts[0] * 1.2); // Increase cost
+            greenTexts[0] = true;
+            greenTextTimers[0] = 60;
+          } else {
+            deny.play();
+            redShards = true;
+            redShardTimer = 60;
           }
-          buttonCosts[0] = int(buttonCosts[0] * 1.2); // Increase cost
-          greenTexts[0] = true;
-          greenTextTimers[0] = 60;
-        } else {
-          deny.play();
-          redShards = true;
-          redShardTimer = 60;
+        }
+      }
+      if (isMouseOverButton(buttonYs[1])) { // Click Up
+        if (clickAmount < 10){
+          if (shard >= buttonCosts[1]) {
+            upgrade.play();
+            shard -= buttonCosts[1]; // Deduct shards
+            clickAmount++; // Increase amount dropped when clicked by 1
+    
+            // Remove particles from pileParticles
+            int numToRemove = buttonCosts[1];
+            int removedCount = 0;
+    
+            for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
+              pileParticles.remove(i);
+              removedCount++;
+            }
+            buttonCosts[1] = int(buttonCosts[1] * 8); // Increase cost
+            greenTexts[1] = true;
+            greenTextTimers[1] = 60;
+          } else {
+            deny.play();
+            redShards = true;
+            redShardTimer = 60;
+          }
+        }
+      }
+      if (isMouseOverButton(buttonYs[2])) { // Crit Chance Up
+        if (criticalChance < 80){
+          if (shard >= buttonCosts[2]) {
+            upgrade.play();
+            shard -= buttonCosts[2]; // Deduct shards
+            criticalChance *= 1.25; // Increase amount dropped when clicked by 1
+            if(criticalChance > 80){
+              criticalChance = 80;
+            }
+             // Remove particles from pileParticles
+            int numToRemove = buttonCosts[2];
+            int removedCount = 0;
+    
+            for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
+              pileParticles.remove(i);
+              removedCount++;
+            }
+            buttonCosts[2] = int(buttonCosts[2] * 1.35); // Increase cost
+            greenTexts[2] = true;
+            greenTextTimers[2] = 60;
+          } else {
+            deny.play();
+            redShards = true;
+            redShardTimer = 60;
+          }
+        }
+      }
+      if (isMouseOverButton(buttonYs[3])) { // Crit Amount Up
+        if (criticalAmount < 5){
+          if (shard >= buttonCosts[3]) {
+            upgrade.play();
+            shard -= buttonCosts[3]; // Deduct shards
+            criticalAmount++; // Increase amount dropped when clicked by 1
+    
+            // Remove particles from pileParticles
+            int numToRemove = buttonCosts[3];
+            int removedCount = 0;
+    
+            for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
+              pileParticles.remove(i);
+              removedCount++;
+            }
+            buttonCosts[3] = int(buttonCosts[3] * 3); // Increase cost
+            greenTexts[3] = true;
+            greenTextTimers[3] = 60;
+          } else {
+            deny.play();
+            redShards = true;
+            redShardTimer = 60;
+          }
+        }
+      }
+      if (isMouseOverButton(buttonYs[4])) { // Decay Speed Down
+        if (decayRateInterval < 1800){
+          if (shard >= buttonCosts[4]) {
+            upgrade.play();
+            shard -= buttonCosts[4]; // Deduct shards
+            decayRateInterval *= 1.3; // Increase amount dropped when clicked by 1
+            if (decayRateInterval > 1800) {
+              decayRateInterval = 1800;
+            }
+    
+            // Remove particles from pileParticles
+            int numToRemove = buttonCosts[4];
+            int removedCount = 0;
+    
+            for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
+              pileParticles.remove(i);
+              removedCount++;
+            }
+            buttonCosts[4] = int(buttonCosts[4] * 1.75); // Increase cost
+            greenTexts[4] = true;
+            greenTextTimers[4] = 60;
+          } else {
+            deny.play();
+            redShards = true;
+            redShardTimer = 60;
+          }
+        }
+      }
+      if (isMouseOverButton(buttonYs[5])) { // Decay Loss Down
+        if (decayPercentage > .01){
+          if (shard >= buttonCosts[5]) {
+            upgrade.play();
+            shard -= buttonCosts[5]; // Deduct shards
+            decayPercentage /= 1.3; // Increase amount dropped when clicked by 1
+            if (decayPercentage < .01) {
+                decayPercentage = .01;
+            }
+    
+            // Remove particles from pileParticles
+            int numToRemove = buttonCosts[5];
+            int removedCount = 0;
+    
+            for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
+              pileParticles.remove(i);
+              removedCount++;
+            }
+            buttonCosts[5] = int(buttonCosts[5] * 1.15); // Increase cost
+            greenTexts[5] = true;
+            greenTextTimers[5] = 60;
+          } else {
+            deny.play();
+            redShards = true;
+            redShardTimer = 60;
+          }
+        }
+      }
+      if (isMouseOverButton(buttonYs[6])) { // Rebirth
+        if (shardWorth < 10){
+          if (shard >= buttonCosts[6]) {
+            upgrade.play();
+            shard -= buttonCosts[6]; // Deduct shards
+            shardWorth++; // Increase worth of shards
+            // Reset everything
+            buttonCosts[0] = 10;
+            buttonCosts[1] = 50;
+            buttonCosts[2] = 5;
+            buttonCosts[3] = 25;
+            buttonCosts[4] = 20;
+            buttonCosts[5] = 30;
+            
+            spawnRateInterval = 60; // Initial spawn rate interval
+            decayRateInterval = 180; // Initial decay rate interval
+            decayPercentage = 0.05; // Percentage of shards removed
+            criticalChance = 0.5; // Chance to spawn extra shards
+            criticalAmount = 2; // Amount of shards spawned off of a critical
+            clickAmount = 1; //Amount of shards spawned on click
+            if (shardWorth > 10) {
+                shardWorth = 10;
+            }
+    
+            // Remove particles from pileParticles
+            int numToRemove = pileParticles.size();
+            int removedCount = 0;
+            // Remove all particles  
+            for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
+              pileParticles.remove(i);
+              removedCount++;
+            }
+            buttonCosts[6] = int(buttonCosts[5] * 2); // Increase cost
+            greenTexts[6] = true;
+            greenTextTimers[6] = 60;
+          } else {
+            deny.play();
+            redShards = true;
+            redShardTimer = 60;
+          }
         }
       }
     }
-    if (isMouseOverButton(buttonYs[1])) { // Click Up
-      if (clickAmount < 10){
-        if (shard >= buttonCosts[1]) {
-          upgrade.play();
-          shard -= buttonCosts[1]; // Deduct shards
-          clickAmount++; // Increase amount dropped when clicked by 1
-  
-          // Remove particles from pileParticles
-          int numToRemove = buttonCosts[1];
-          int removedCount = 0;
-  
-          for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
-            pileParticles.remove(i);
-            removedCount++;
-          }
-          buttonCosts[1] = int(buttonCosts[1] * 8); // Increase cost
-          greenTexts[1] = true;
-          greenTextTimers[1] = 60;
-        } else {
-          deny.play();
-          redShards = true;
-          redShardTimer = 60;
+    if(!isMouseOverButton(100) && !isMouseOverButton(buttonYs[0])){
+      randPosition = (int(random(1, (int(width) / 13))) * 13);
+      int snappedX = int(mouseX / 13) * 13; // Snap mouseX to the nearest multiple of 13
+      if (random(100) < criticalChance) {
+        // Spawn 30 shards if the random number is less than criticalChance
+        for (int i = 0; i < (criticalAmount * clickAmount); i++) {
+          particles.add(new Particle(randPosition, 0, getGnorpColor()));
         }
-      }
-    }
-    if (isMouseOverButton(buttonYs[2])) { // Crit Chance Up
-      if (criticalChance < 80){
-        if (shard >= buttonCosts[2]) {
-          upgrade.play();
-          shard -= buttonCosts[2]; // Deduct shards
-          criticalChance *= 1.25; // Increase amount dropped when clicked by 1
-          if(criticalChance > 80){
-            criticalChance = 80;
-          }
-           // Remove particles from pileParticles
-          int numToRemove = buttonCosts[2];
-          int removedCount = 0;
-  
-          for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
-            pileParticles.remove(i);
-            removedCount++;
-          }
-          buttonCosts[2] = int(buttonCosts[2] * 1.35); // Increase cost
-          greenTexts[2] = true;
-          greenTextTimers[2] = 60;
-        } else {
-          deny.play();
-          redShards = true;
-          redShardTimer = 60;
+      }else {
+        for (int i = 0; i < clickAmount; i++){
+          particles.add(new Particle(randPosition, 0, getGnorpColor()));
         }
-      }
-    }
-    if (isMouseOverButton(buttonYs[3])) { // Crit Amount Up
-      if (criticalAmount < 5){
-        if (shard >= buttonCosts[3]) {
-          upgrade.play();
-          shard -= buttonCosts[3]; // Deduct shards
-          criticalAmount++; // Increase amount dropped when clicked by 1
-  
-          // Remove particles from pileParticles
-          int numToRemove = buttonCosts[3];
-          int removedCount = 0;
-  
-          for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
-            pileParticles.remove(i);
-            removedCount++;
-          }
-          buttonCosts[3] = int(buttonCosts[3] * 3); // Increase cost
-          greenTexts[3] = true;
-          greenTextTimers[3] = 60;
-        } else {
-          deny.play();
-          redShards = true;
-          redShardTimer = 60;
-        }
-      }
-    }
-    if (isMouseOverButton(buttonYs[4])) { // Decay Rate Down
-      if (decayRateInterval < 1800){
-        if (shard >= buttonCosts[4]) {
-          upgrade.play();
-          shard -= buttonCosts[4]; // Deduct shards
-          decayRateInterval *= 1.3; // Increase amount dropped when clicked by 1
-          if (decayRateInterval > 1800) {
-            decayRateInterval = 1800;
-          }
-  
-          // Remove particles from pileParticles
-          int numToRemove = buttonCosts[4];
-          int removedCount = 0;
-  
-          for (int i = pileParticles.size() - 1; i >= 0 && removedCount < numToRemove; i--) {
-            pileParticles.remove(i);
-            removedCount++;
-          }
-          buttonCosts[4] = int(buttonCosts[4] * 2); // Increase cost
-          greenTexts[4] = true;
-          greenTextTimers[4] = 60;
-        } else {
-          deny.play();
-          redShards = true;
-          redShardTimer = 60;
-        }
-      }
-    }
-  }
-  if(!isMouseOverButton(100) && !isMouseOverButton(buttonYs[0])){
-    randPosition = (int(random(1, (int(width) / 13))) * 13);
-    int snappedX = int(mouseX / 13) * 13; // Snap mouseX to the nearest multiple of 13
-    if (random(100) < criticalChance) {
-      // Spawn 30 shards if the random number is less than criticalChance
-      for (int i = 0; i < (criticalAmount * clickAmount); i++) {
-        particles.add(new Particle(randPosition, 0, getGnorpColor()));
-      }
-    }else {
-      for (int i = 0; i < clickAmount; i++){
-        particles.add(new Particle(randPosition, 0, getGnorpColor()));
       }
     }
   }
@@ -634,7 +636,7 @@ void loadGameData() {
     println("Save file found. Loading data...");
     spawnRateInterval = gameData.getFloat("spawnRateInterval");
     buttonCosts[0] =   gameData.getInt("spawnRateIntervalCost");
-    decayRateInterval = gameData.getFloat("decayRateInterval");
+    decayRateInterval = gameData.getInt("decayRateInterval");
     buttonCosts[1] =   gameData.getInt("decayRateIntervalCost");
     decayPercentage = gameData.getFloat("decayPercentage");
     buttonCosts[2] =   gameData.getInt("decayPercentageCost");
@@ -684,68 +686,191 @@ void saveGameData() {
 }
 
 void ShowStats(){
-    // ** Display on the Left Side: Decay Info **
+     int colorCycle = frameCount%360;
+  if (showStats){
+      // ** Display on the Left Side: Decay Info **
+    fill(255);
+    textSize(24);
+    textAlign(LEFT, TOP);
+    text("Time Before Decay " + String.format("%.2f", decayRateInterval / 60.0) + " secs", 20, 100);
+    text("Decay Rate " + String.format("%.2f", decayPercentage * 100) + "% per shard" , 20, 150);
+    if(decayPercentage * (shard / shardWorth) < .9){
+      text("Current Decay " + String.format("%.2f", (decayPercentage * (shard / shardWorth)) * 100) + "% (Max = 90%)", 20, 200);
+    }
+    else{
+      text("Current Decay " + (int)(90) + "% (Max = 90%)", 20, 200);
+    }
+    text("(Shard Decay Is Rounded Down)" , 20, 250);
+    // ** Display on the Right Side: Spawn Info **
+    textSize(27);
+    textAlign(RIGHT, TOP);
+    if (greenTexts[0]) {
+      fill(0, 255, 0); // Green color
+    }else {
+      fill(255); // Default text color
+    }
+      if (greenTextTimers[0] > 0) {
+      greenTextTimers[0]--;
+        if (greenTextTimers[0] == 0) {
+          greenTexts[0] = false; // Stop showing green text
+        }
+      }
+    text(String.format("%.2f", (60 / spawnRateInterval)) + " shards per sec", width - 20, 100);
+    if (greenTexts[1]) {
+      fill(0, 255, 0); // Green color
+    }else {
+      fill(255); // Default text color
+    }
+      if (greenTextTimers[1] > 0) {
+      greenTextTimers[1]--;
+        if (greenTextTimers[1] == 0) {
+          greenTexts[1] = false; // Stop showing green text
+        }
+      }
+    text((int)clickAmount + " shards per click", width - 20, 150);
+    if (greenTexts[2]) {
+      fill(0, 255, 0); // Green color
+    }else {
+      fill(255); // Default text color
+    }
+    if (greenTextTimers[2] > 0) {
+    greenTextTimers[2]--;
+      if (greenTextTimers[2] == 0) {
+        greenTexts[2] = false; // Stop showing green text
+      }
+    }
+    text(String.format("%.2f", criticalChance) + "%" + " Crit Chance", width - 20, 200);
+      if (greenTexts[3]) {
+      fill(0, 255, 0); // Green color
+      }else {
+        fill(255); // Default text color
+      }
+      if (greenTextTimers[3] > 0) {
+      greenTextTimers[3]--;
+        if (greenTextTimers[3] == 0) {
+          greenTexts[3] = false; // Stop showing green text
+        }
+    }
+    text((int)criticalAmount + "x" + " Shards Spawned On Crit", width - 20, 250);
+          if (greenTexts[6]) {
+            fill(0, 255, 0); // Green color
+          }else {
+            fill(255); // Default text color
+          }
+          if (greenTextTimers[6] > 0) {
+            greenTextTimers[6]--;
+            if (greenTextTimers[6] == 0) {
+              greenTexts[6] = false; // Stop showing green text
+            }
+    }
+    text((int)shardWorth + "x" + " Shard Value", width - 20, 300);
+  }
+}
+void ShowButtons(){
+  colorMode(RGB,255,255,255);
+  int colorCycle = frameCount%360;
+  // Display the "Upgrades" button
+  fill(0, 255, 0); // Green color for the upgrades button
+  if (isMouseOverButton(100)) {
+    fill(0, 200, 0); // Darker green when hovered
+  }
+  rectMode(CENTER);
+  rect(width / 2, 100, buttonWidth, buttonHeight);
   fill(255);
-  textSize(27);
-  textAlign(LEFT, TOP);
-  text("Time Before Decay " + String.format("%.2f", decayRateInterval / 60.0) + " secs", 20, 100);
-  text("Decay Rate " + (int)(decayPercentage * 100) + "% per shard" , 20, 150);
-  if(decayPercentage * shard < .9){
-    text("Current Decay " + (int)((decayPercentage * shard) * 100) + "% (Max = 90%)", 20, 200);
+  textSize(30);
+  text("Upgrades", width / 2, 85);
+  
+    // Display the "Stats" button
+  fill(235, 235, 0); // Green color for the upgrades button
+  if (isMouseOverButton(150)) {
+    fill(200, 200, 0); // Darker green when hovered
+  }
+  rect(width / 2, 150, buttonWidth, buttonHeight);
+  fill(255);
+  text("Stats", width / 2, 135);
+
+  // Only show other buttons if showButtons is true
+  if (showButtons) {
+    fadeTimer = 0;
+    // Display the other buttons
+    for (int i = 0; i < buttonLabels.length; i++) {
+      int yPos = buttonYs[i];
+
+      fill(255);
+      textSize(31);
+      textAlign(CENTER, CENTER);
+      text("Cost  " + buttonCosts[i], width / 2, yPos - 50);
+      if (shard < buttonCosts[i]) {
+        if(isMouseOverButton(yPos)){         
+          fill(140, 0, 0); //Mouse Hovering Over
+        }
+        else {
+          fill(200, 0, 0); // Mouse Not Hovering Over
+        }
+      }
+      
+      // Check if "Spawn UP" is at its max level (spawnRateInterval == 1)
+      if ((spawnRateInterval * .95) < 1 && i == 0) {
+        buttonLabels[0] = "MAX"; // Change the label to "MAX"
+        fill(30,30,30); // Make the button appear disabled
+      } 
+      if (clickAmount == 10 && i == 1) {
+        buttonLabels[1] = "MAX"; // Change the label to "MAX"
+        fill(30,30,30); // Make the button appear disabled
+      } 
+      if (criticalChance == 80 && i == 2) {
+        buttonLabels[2] = "MAX"; // Change the label to "MAX"
+        fill(30,30,30); // Make the button appear disabled
+      } 
+      if (criticalAmount == 5 && i == 3) {
+        buttonLabels[3] = "MAX"; // Change the label to "MAX"
+        fill(30,30,30); // Make the button appear disabled
+      } 
+      if (decayRateInterval == 1800 && i == 4) {
+        buttonLabels[4] = "MAX"; // Change the label to "MAX"
+        fill(30,30,30); // Make the button appear disabled
+      } 
+      if (decayPercentage == .01 && i == 5) {
+        buttonLabels[5] = "MAX"; // Change the label to "MAX"
+        fill(30,30,30); // Make the button appear disabled
+      }
+      if (shardWorth == 10 && i == 6) {
+        buttonLabels[6] = "MAX"; // Change the label to "MAX"
+        fill(30,30,30); // Make the button appear disabled
+      } 
+      if ( i != 6){         
+        if (shard >= buttonCosts[i] && buttonLabels[i] != "MAX") {
+          if(isMouseOverButton(yPos)){
+            fill(150, 150, 0); // Mouse Not Hovering Over
+          }
+          else {
+            fill(220, 220, 0); //Mouse Hovering Over
+            
+          } 
+        }         
+      }    
+      else if(shard >= buttonCosts[6] && buttonLabels[6] != "MAX") {
+          if(isMouseOverButton(yPos)){
+
+            colorMode(HSB,360,100,100);
+            fill(color(colorCycle, 100, 100)); // Mouse Not Hovering Over
+          }
+          else {
+            colorMode(HSB,360, 50, 50);
+            fill(color(colorCycle, 100, 100)); // Mouse Hovering Over
+          } 
+      }
+        
+        
+        rect(width / 2, yPos, buttonWidth, buttonHeight);
+        
+        colorMode(RGB,255,255,255);
+        fill(255);
+        textSize(19);
+        text(buttonLabels[i], width / 2, yPos);
+      }
   }
   else{
-    text("Current Decay " + (int)(90) + "% (Max = 90%)", 20, 200);
+    fadeTimer++;
   }
-  text("(Shard Decay Is Rounded Down)" , 20, 250);
-  // ** Display on the Right Side: Spawn Info **
-  textSize(27);
-  textAlign(RIGHT, TOP);
-  if (greenTexts[0]) {
-    fill(0, 255, 0); // Green color
-  }else {
-    fill(255); // Default text color
-  }
-    if (greenTextTimers[0] > 0) {
-    greenTextTimers[0]--;
-      if (greenTextTimers[0] == 0) {
-        greenTexts[0] = false; // Stop showing green text
-      }
-    }
-  text(String.format("%.2f", (60 / spawnRateInterval)) + " shards per sec", width - 20, 100);
-  if (greenTexts[1]) {
-    fill(0, 255, 0); // Green color
-  }else {
-    fill(255); // Default text color
-  }
-    if (greenTextTimers[1] > 0) {
-    greenTextTimers[1]--;
-      if (greenTextTimers[1] == 0) {
-        greenTexts[1] = false; // Stop showing green text
-      }
-    }
-  text((int)clickAmount + " shards per click", width - 20, 150);
-  if (greenTexts[2]) {
-    fill(0, 255, 0); // Green color
-  }else {
-    fill(255); // Default text color
-  }
-  if (greenTextTimers[2] > 0) {
-  greenTextTimers[2]--;
-    if (greenTextTimers[2] == 0) {
-      greenTexts[2] = false; // Stop showing green text
-    }
-  }
-  text(String.format("%.2f", criticalChance) + "%" + " Crit Chance", width - 20, 200);
-    if (greenTexts[3]) {
-    fill(0, 255, 0); // Green color
-  }else {
-    fill(255); // Default text color
-  }
-  if (greenTextTimers[3] > 0) {
-  greenTextTimers[3]--;
-    if (greenTextTimers[3] == 0) {
-      greenTexts[3] = false; // Stop showing green text
-    }
-  }
-  text((int)criticalAmount + "x" + " Shards Spawned On Crit", width - 20, 250);
 }
