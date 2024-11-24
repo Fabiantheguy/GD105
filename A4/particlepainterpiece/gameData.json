@@ -1,9 +1,15 @@
 {
-  "criticalChance": 0.5249999761581421,
-  "criticalAmount": 2,
-  "decayRateInterval": 180,
-  "spawnRateInterval": 60,
-  "shard": 7,
-  "clickAmount": 1,
-  "decayPercentage": 0.05000000074505806
+  "decayRateIntervalCost": 400,
+  "criticalChanceCost": 75,
+  "clickAmountCost": 30,
+  "decayPercentageCost": 70,
+  "clickAmount": 2,
+  "spawnRateIntervalCost": 44,
+  "criticalChance": 4.656612873077393,
+  "criticalAmount": 3,
+  "decayRateInterval": 270,
+  "spawnRateInterval": 35,
+  "shard": 34,
+  "decayPercentage": 0.05000000074505806,
+  "criticalAmountCost": 90
 }
