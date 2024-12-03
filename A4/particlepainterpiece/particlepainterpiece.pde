@@ -192,19 +192,21 @@ void draw() {
   rect(0, 0, 1000000, 1000000); // Fade effect covering the screen
   fill(255);
   textAlign(RIGHT, TOP);
-  textSize(10);
+  textSize(15);
   text("Press Q to Mute/Unmute SFX", width - 20, 50);
-  text("Press E to Mute/Unmute Music", width - 20, 60);
+  text("Press E to Mute/Unmute Music", width - 20, 65);
   if (keyPressed) {
-    if (key == 'q' || key == 'Q' && !sfxPressed){
+    if (key == 'q' && !sfxPressed){
       sfxOn = !sfxOn;
       sfxPressed = true;
     }
-    if (key == 'e' || key == 'E' && !musicPressed){
+    if (key == 'e' && !musicPressed){
       musicOn = !musicOn;
       musicPressed = true;
     } 
-    }else{
+    
+  }
+  else{
       sfxPressed = false;
       musicPressed = false;
   }
