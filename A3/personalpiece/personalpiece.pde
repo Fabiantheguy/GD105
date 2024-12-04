@@ -33,7 +33,7 @@ int card = 1, score = 0;
 int amazing, great, good, poor, uhm;
 float textSize = 1, redScoreColor;
 int colorCycle, timer, rand;
-boolean saved, resultsSound = false, canDraw = true, firstSet = true, correct = false, wrong = false, givingReason = false;
+boolean saved, drumRolled = false, resultsSound = false, canDraw = true, firstSet = true, correct = false, wrong = false, givingReason = false;
 int setsSeen = 1;
 boolean[] canChoose = new boolean[cardNames.length];
 
@@ -113,8 +113,9 @@ void draw() {
 }}
 
 void mouseClicked() {
-  if ((timer > 80 && setsSeen == last - 1) && (onButton(lx, ly, bw, bh) || onButton(rx, ry, bw, bh))) {
+  if ((timer > 130 && setsSeen == last - 1) && (onButton(yx+20, yy+90, bw, bh)) && !drumRolled) {
      drum.play(); // Drum sound
+     drumRolled = true;
   }
 
   // Handle button clicks for scoring
@@ -153,8 +154,9 @@ void resetGame() {
   score = 0;
   textSize = 1;
   timer = 0;
-paper.play();
+  paper.play();
   resultsSound = false;
+  drumRolled = false;
   for (int i = 0; i < canChoose.length; i++) canChoose[i] = true;
 }
 
@@ -427,11 +429,15 @@ void giveReason(){
     textLeading(35);
     if(setsSeen == 1) text("Ironclaw Orcs is better because although both cards have the \n same cost and stats, it can block creatures with power 1 or less \n while Goblin Raider can't. ", width/2, 720);
     if(setsSeen == 2) text("Youngster is better because it has the possibility to give you a larger \n number of cards in your hand compared to before you played it, whereas \n Maintenance will always cause you to end up with 2 fewer cards.\n (Keep in mind that Maintenance is one of the cards you lose).", width/2, 720);
-    if(setsSeen == 3) text("Although both can make cards ineffective, Neigh is better because \n not only does it not have a cost (as displayed in the top-right corner of \n Essence Scatter), but it also can stop any card, compared to \n Essence Scatter which is limited to creatures.", width/2, 720);
+    if(setsSeen == 3) text("Although both can make other cards ineffective, Neigh is better because \n not only does it not have a cost (as displayed in the top-right corner of \n Essence Scatter), but it also can stop any card, compared to \n Essence Scatter which is limited to creatures.", width/2, 720);
     if(setsSeen == 4) text("Raigeki is better because it can specifically destroy your \n opponent's monsters, while Black Hole will also destroy yours.", width/2, 720);
     if(setsSeen == 5) text("Archmage's Charm is better because although it has the same cost \n and offers the same effect as Arcane Intellect, it offers other \n effects that can be better options in different situations.", width/2, 720);
     if(setsSeen == 6) text("Threatening Roar is better because although both cards \n virtually deny your opponenent from attacking you for a turn, \n Negate Attack requires you to wait for your opponent to attack, \n while Threatening Roar can be used at any time.", width/2, 720);
     if(setsSeen == 7) text("Requisition Raid is better because it has the possibilty \n of having the same cost and effect as Basri's Solidarity while \n also having the possibility of getting other effects. \n (It can gain every effect in its text at once!)", width/2, 720);
-    if(setsSeen == 8) text("Demand Answers is better because you can choose to \n discard or sacrifice to cast it, while Thrill of Possibility always requires a discard.", width/2, 720);
+    if(setsSeen == 8) text("Demand Answers is better because you can choose to \n discard or sacrifice  a card to cast it, while Thrill of Possibility always \n requires a discard.", width/2, 720);
+    if(setsSeen == 9) text("Ancestral Recall is better, because although both cards offer \n the same payoff, Mise has an additional conditional requirement.", width/2, 720);
+    if(setsSeen == 10) text("You know why +4 is better.", width/2, 720);
+    if(setsSeen == 11) text("Unicorn Hangover is better because it can skip any player, while Skip can \n only skip the next turn player.", width/2, 720);
+    if(setsSeen == 12) text("Demonic Tutor is better because it is non-conditional, whereas \n Demonic Counsel can only search for demons unless a condition is fulfilled.", width/2, 720);
  }
 }
