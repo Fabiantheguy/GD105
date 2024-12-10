@@ -1,0 +1,19 @@
+{
+  "decayRateIntervalCost": 1.31072E7,
+  "criticalChanceCost": 25,
+  "clickAmountCost": 30,
+  "sfx": true,
+  "decayPercentageCost": 6,
+  "clickAmount": 7,
+  "spawnRateIntervalCost": 10,
+  "criticalChance": 0.625,
+  "criticalAmount": 2,
+  "music": true,
+  "shardWorth": 10000,
+  "decayRateInterval": 1800,
+  "shardWorthCost": 100,
+  "spawnRateInterval": 60,
+  "shard": 50000,
+  "decayPercentage": 0.05000000074505806,
+  "criticalAmountCost": 757
+}
