@@ -1,4 +1,5 @@
 class Car {
+  
   float x, y;
   float speed = 1.5; // Adjusted for smaller scale
   float size = tileSize - 4; // Slightly smaller than a tile for visibility
@@ -35,6 +36,7 @@ class Car {
 
     x = nextX;
     y = nextY;
+    
   }
 
   void display() {
